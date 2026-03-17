@@ -1,6 +1,6 @@
 import pygame
 from config import *
-import input_handler
+#import input_handler
 
 class Game:
 
@@ -24,6 +24,7 @@ class Game:
 
     def update(self, dt):
         # working...
+        pass
 
     def handle_events(self):
         for event in pygame.event.get():
