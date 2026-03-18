@@ -1,19 +1,16 @@
 import pygame
-#SPEED = 300
-#dt = 0
-action = []
 
-class InputHandler():
-    def movement_handler(self, event):
+class InputHandler:
+    def movement_handler(self):
+        actions = []
         key = pygame.key.get_pressed()
-
         if key[pygame.K_SPACE]:
-            action.append("JUMP")
+            actions.append("JUMP")
         if key[pygame.K_DOWN]:
-            action.append("CROUCH")
-        if key[pygame.K_a] or key[pygame.K_RIGHT]:
-            action.append("RIGHT")
-        if key[pygame.K_d] or key[pygame.K_LEFT]:
-            action.append("LEFT")
+            actions.append("CROUCH")
+        if key[pygame.K_d] or key[pygame.K_RIGHT]:
+            actions.append("RIGHT")
+        if key[pygame.K_a] or key[pygame.K_LEFT]:
+            actions.append("LEFT")
 
-        return action
+        return actions

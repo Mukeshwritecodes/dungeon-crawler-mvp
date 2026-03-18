@@ -10,7 +10,7 @@ class EntityBase:
     def update(self, dt):
         pass
 
-    def draw(self, surface):
+    def draw(self, screen):
         pass
 
 

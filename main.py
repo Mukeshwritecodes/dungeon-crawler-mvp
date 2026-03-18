@@ -1,9 +1,9 @@
 import sys
 import pygame
-from core import game
-game = game.Game()
-
+from core.game import Game
 pygame.init()
+
+game = Game()
 game.run()
 
 # Uninitialize modules

@@ -1,14 +1,21 @@
 import pygame
 from config import *
-#import input_handler
+from .input_handler import InputHandler
+from entities.player import Player
 
 class Game:
 
     # Initializes the game objects
     def __init__(self):
+        self.position = pygame.Vector2()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption(TITLE)
         self.clock = pygame.time.Clock()
+        self.InputHandler = InputHandler()
+        self.position.x = 200
+        self.position.y = 400
+        self.player = Player("player", 1, self.position, 300)
+
 
     # Runs the main game loop and call the important functions
     def run(self):
@@ -24,7 +31,7 @@ class Game:
 
     def update(self, dt):
         # working...
-        pass
+        self.player.update(dt, self.InputHandler.movement_handler())
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -34,4 +41,5 @@ class Game:
 
     def draw(self):
         self.screen.fill((0, 0, 0))
+        self.player.draw(self.screen)
         pygame.display.flip()
