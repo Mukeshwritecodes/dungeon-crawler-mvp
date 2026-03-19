@@ -1,7 +1,9 @@
 import pygame
 from config import *
+from utils.constants import *
 from .input_handler import InputHandler
 from entities.player import Player
+from world.tilemap import TileMap
 
 class Game:
 
@@ -12,9 +14,13 @@ class Game:
         pygame.display.set_caption(TITLE)
         self.clock = pygame.time.Clock()
         self.InputHandler = InputHandler()
+        self.TileMap = TileMap()
+        self.tile_rects = self.TileMap.get_tile_rects()
+        print(self.tile_rects)
         self.position.x = 200
         self.position.y = 400
-        self.player = Player("player", 1, self.position, 300)
+
+        self.player = Player("player", 1, self.position, BASE_VELOCITY, self.tile_rects)
 
 
     # Runs the main game loop and call the important functions
@@ -41,5 +47,6 @@ class Game:
 
     def draw(self):
         self.screen.fill((0, 0, 0))
+        self.TileMap.draw(self.screen)
         self.player.draw(self.screen)
         pygame.display.flip()
