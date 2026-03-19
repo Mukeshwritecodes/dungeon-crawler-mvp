@@ -4,8 +4,8 @@ from utils import constants
 
 
 class Player(EntityBase):
-    def __init__(self, name, entity_type, position, speed, tile_rects):
-        super().__init__(name, entity_type, position, speed)
+    def __init__(self, position, speed, tile_rects):
+        super().__init__(position, speed)
 
         self.tile_rects = tile_rects
         self.is_jumping = False
@@ -51,7 +51,7 @@ class Player(EntityBase):
 
     def check_collision_x(self):
         # Check tiles specifically for horizontal overlaps
-        rect = self.is_collision(self.player_rect)
+        rect = self.get_collision_rect(self.player_rect)
         if rect:
             if self.velocity_x > 0:  # Moving Right
                 self.position.x = rect.left - self.player_rect.width
@@ -67,7 +67,7 @@ class Player(EntityBase):
 
     def check_collision_y(self):
         # Check tiles specifically for vertical overlaps (Floor/Ceiling)
-        rect = self.is_collision(self.player_rect)
+        rect = self.get_collision_rect(self.player_rect)
         if rect:
             if self.velocity_y > 0:  # Falling (Hitting floor)
                 self.position.y = rect.top - self.player_rect.height
@@ -78,9 +78,12 @@ class Player(EntityBase):
                 self.velocity_y = 0
             self.player_rect.y = self.position.y  # Snap rect to new position
 
-    def is_collision(self, obj_rect):
+    def get_collision_rect(self, obj_rect):
         # Returns the tile rect we collided with, or None
         for rect in self.tile_rects:
             if obj_rect.colliderect(rect):
                 return rect
         return None
+
+    def get_player_rect(self):
+        return self.player_rect
