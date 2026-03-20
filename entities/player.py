@@ -1,21 +1,26 @@
 import pygame
+
+from forms.base_form import BaseForm
+from utils.constants import BASE_SPEED
 from .entity_base import EntityBase
 from utils import constants
+from systems.transformation_system import TransformationSystem
 
 
 class Player(EntityBase):
-    def __init__(self, position, speed, tile_rects):
-        super().__init__(position, speed)
+    def __init__(self, position, tile_rects):
+        super().__init__(position, BASE_SPEED)
 
         self.tile_rects = tile_rects
         self.is_jumping = False
         self.jump_force = -900  # Increased for dt scaling
-        self.speed = speed
         self.velocity_x = 0
         self.velocity_y = 0
-
-        # Create a persistent rect for collision math
         self.player_rect = pygame.Rect(self.position.x, self.position.y, 50, 100)
+        self.speed = BASE_SPEED
+        self.color = constants.BLUE
+        self.form = BaseForm()
+        self.transformation_system = TransformationSystem()
 
     def update(self, dt, actions):
         # Reset horizontal velocity each frame so player stops when key is released
@@ -37,12 +42,11 @@ class Player(EntityBase):
         # Drawing the player as a blue rectangle
         # Create the surface (do this once, not every frame, for better performance)
         rectangle_surface = pygame.Surface((50, 100))
-        rectangle_surface.fill((0, 0, 255))
+        rectangle_surface.fill(self.color)
 
         # Calculate the draw position by adding the offset to the player's rect
         draw_pos = (self.player_rect.x + offset[0], self.player_rect.y + offset[1])
 
-        # Blit it using only the destination
         screen.blit(rectangle_surface, draw_pos)
 
     def handle_input(self, actions):
@@ -56,6 +60,8 @@ class Player(EntityBase):
                     if not self.is_jumping:
                         self.velocity_y = self.jump_force
                         self.is_jumping = True
+                case "TRANSFORM":
+                    self.transformation_system.transform(self)
 
     def check_collision_x(self):
         # Check tiles specifically for horizontal overlaps

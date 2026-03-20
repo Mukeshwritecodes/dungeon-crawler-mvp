@@ -1,7 +1,7 @@
 import pygame
 
 class InputHandler:
-    def movement_handler(self):
+    def movement_handler(self, events):
         actions = []
         key = pygame.key.get_pressed()
         if key[pygame.K_SPACE]:
@@ -12,5 +12,9 @@ class InputHandler:
             actions.append("RIGHT")
         if key[pygame.K_a] or key[pygame.K_LEFT]:
             actions.append("LEFT")
+        for event in events:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_t:
+                    actions.append("TRANSFORM")
 
         return actions
