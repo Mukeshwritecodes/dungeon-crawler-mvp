@@ -33,9 +33,17 @@ class Player(EntityBase):
         self.player_rect.y = self.position.y  # Sync rect for collision check
         self.check_collision_y()
 
-    def draw(self, screen):
+    def draw(self, screen, offset):
         # Drawing the player as a blue rectangle
-        pygame.draw.rect(screen, (0, 0, 255), self.player_rect)
+        # Create the surface (do this once, not every frame, for better performance)
+        rectangle_surface = pygame.Surface((50, 100))
+        rectangle_surface.fill((0, 0, 255))
+
+        # Calculate the draw position by adding the offset to the player's rect
+        draw_pos = (self.player_rect.x + offset[0], self.player_rect.y + offset[1])
+
+        # Blit it using only the destination
+        screen.blit(rectangle_surface, draw_pos)
 
     def handle_input(self, actions):
         for action in actions:

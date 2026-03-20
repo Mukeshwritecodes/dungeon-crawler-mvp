@@ -31,8 +31,15 @@ class Enemy(EntityBase):
         self.enemy_rect.y = self.position.y  # Sync rect for collision check
         self.check_collision_y()
 
-    def draw(self, screen):
-        pygame.draw.rect(screen, (255, 0, 0), self.enemy_rect)
+    def draw(self, screen, offset):
+        rectangle_surface = pygame.Surface((25, 25))
+        rectangle_surface.fill((255, 0, 0))
+
+        # Calculate the draw position by adding the offset to the player's rect
+        draw_pos = (self.enemy_rect.x + offset[0], self.enemy_rect.y + offset[1])
+
+        # Blit it using only the destination
+        screen.blit(rectangle_surface, draw_pos)
 
     def apply_gravity(self, dt):
         # Apply constant gravity force

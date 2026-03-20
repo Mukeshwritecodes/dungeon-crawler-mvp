@@ -23,9 +23,9 @@ class TileMap:
     def update(self):
         pass
 
-    def draw(self, screen):
+    def draw(self, screen, offset):
         self.background(screen)
-        self.platform(screen)
+        self.platform(screen, offset)
         self.foreground()
 
 
@@ -34,7 +34,7 @@ class TileMap:
             background_surface = self.load_background(i)
             screen.blit(background_surface, (0, 0))
 
-    def platform(self, screen):
+    def platform(self, screen, offset):
         platform_map = self.load_map(self.map_path)
         tileset = self.helper.load_image(self.tileset_path)
 
@@ -50,7 +50,8 @@ class TileMap:
                     y = int(tile_id // tileset_cols)
 
                     tile = self.get_tile(tileset, x * TILE_SIZE, y * TILE_SIZE)
-                    screen.blit(tile, (col_index * TILE_SIZE, row_index * TILE_SIZE))
+                    tile_rect = pygame.Rect(col_index * TILE_SIZE, row_index * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+                    screen.blit(tile, tile_rect.move(offset))
 
     def foreground(self):
         pass
