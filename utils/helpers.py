@@ -1,8 +1,6 @@
 from pydoc_data.topics import topics
 
 import pygame
-from config import WIDTH, HEIGHT
-from utils.constants import TILE_SIZE
 
 
 class Helper:
@@ -13,6 +11,14 @@ class Helper:
         image = pygame.image.load(path).convert_alpha()
         return image
 
-    def load_animation(self, path):
-        pass
-
+    def load_sprites(self, path, sprite_width):
+        spritesheet = self.load_image(path)
+        x = 0
+        y = 0
+        sprites = []
+        cols = int(spritesheet.width / sprite_width)
+        for i in range(cols):
+            rect = pygame.Rect(x, y, sprite_width, spritesheet.get_height())
+            sprites.append(spritesheet.subsurface(rect))
+            x += sprite_width
+        return sprites

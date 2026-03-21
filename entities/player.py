@@ -4,6 +4,7 @@ from forms.base_form import BaseForm
 from utils.constants import BASE_SPEED, BASE_JUMP_FORCE
 from .entity_base import EntityBase
 from utils import constants
+from utils.helpers import Helper
 from systems.transformation_system import TransformationSystem
 
 
@@ -31,6 +32,25 @@ class Player(EntityBase):
         self.form = BaseForm().apply(self)
         self.transformation_system = TransformationSystem()
 
+        helper = Helper()
+        self.running_right = helper.load_sprites("assets/sprites/player-running-right.png", 32)
+        self.running_left = helper.load_sprites("assets/sprites/player-running-left.png", 32)
+        self.idle_right = helper.load_sprites("assets/sprites/idle-right.png", 32)
+        self.idle_left = helper.load_sprites("assets/sprites/idle-left.png", 32)
+        self.animations = {
+            "idle_right": self.idle_right,
+            "idle_left": self.idle_left,
+            "run_right": self.running_right,
+            "run_left": self.running_left
+        }
+        self.spritesheet_index = 0
+        self.frame_index = 0
+        self.animation_timer = 0
+        self.animation_speed = 0.1
+
+        self.state = "idle"
+        self.facing = "right"
+        self.current_animation = "idle_right"
 
     def update(self, dt, actions):
         # Reset horizontal velocity each frame so player stops when key is released
@@ -50,19 +70,53 @@ class Player(EntityBase):
         self.rect.y = self.position.y  # Sync rect for collision check
         self.check_collision_y()
 
+        if self.velocity_x > 0:
+            self.state = "run"
+            self.facing = "right"
+        elif self.velocity_x < 0:
+            self.state = "run"
+            self.facing = "left"
+        else:
+            self.state = "idle"
+
+        self.current_animation = self.animations[f"{self.state}_{self.facing}"]
+
+        self.animation_timer += dt
+
+        if self.animation_timer >= self.animation_speed:
+            self.animation_timer = 0
+            self.frame_index += 1
+
+            if self.frame_index >= len(self.current_animation):
+                self.frame_index = 0
+
+
     def draw(self, screen, offset):
 
-        self.rectangle_surface.fill(self.color)
-        draw_pos = (self.rect.x + offset[0], self.rect.y + offset[1])
-        screen.blit(self.rectangle_surface, draw_pos)
+        #self.rectangle_surface.fill(self.color)
+        #draw_pos = (self.rect.x + offset[0], self.rect.y + offset[1])
+        #screen.blit(self.rectangle_surface, draw_pos)
+
+        sprite = self.current_animation[self.frame_index]
+        screen.blit(sprite, self.rect.move(offset))
+        new_state = f"{self.state}_{self.facing}"
+
+        if new_state != self.current_animation:
+            self.current_animation = new_state
+            self.frame_index = 0
+
 
     def handle_input(self, actions):
         for action in actions:
             match action:
-                case "LEFT":
-                    self.velocity_x = -self.speed
                 case "RIGHT":
                     self.velocity_x = self.speed
+                    self.spritesheet_index = 0
+                    self.frame_index = 0
+                case "LEFT":
+                    self.velocity_x = -self.speed
+                    self.spritesheet_index = 1
+                    self.frame_index = 1
                 case "JUMP":
                     if self.is_flying:
                         self.velocity_y = self.jump_force
@@ -77,7 +131,6 @@ class Player(EntityBase):
 
                 case "ATTACK":
                     self.wants_to_attack = True
-
 
 
     def apply_gravity(self, dt):
@@ -120,5 +173,4 @@ class Player(EntityBase):
     def get_player_rect(self):
         return self.rect
 
-    def attack(self):
-        pass
+
