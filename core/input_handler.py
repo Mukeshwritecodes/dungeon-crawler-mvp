@@ -16,5 +16,7 @@ class InputHandler:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_t:
                     actions.append("TRANSFORM")
+                if event.key == pygame.K_q:
+                    actions.append("ATTACK")
 
         return actions

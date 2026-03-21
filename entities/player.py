@@ -11,17 +11,23 @@ class Player(EntityBase):
     def __init__(self, position, tile_rects):
         super().__init__(position, BASE_SPEED)
 
-        self.player_rect = pygame.Rect(self.position.x, self.position.y, 25, 25)
+        self.rect = pygame.Rect(self.position.x, self.position.y, 25, 25)
         self.tile_rects = tile_rects
         self.rectangle_surface = pygame.Surface((25, 25))
 
+        self.wants_to_attack = False
         self.is_jumping = False
         self.is_flying = False
+        self.is_alive = True
         self.velocity_x = 0
         self.velocity_y = 0
         self.speed = 0
         self.color = 0
         self.jump_force = 0
+        self.health = 1000
+        self.defense = 0
+        self.attack = 100
+        self.fortitude = 0
         self.form = BaseForm().apply(self)
         self.transformation_system = TransformationSystem()
 
@@ -35,19 +41,19 @@ class Player(EntityBase):
         # 1. Handle Input & Horizontal Movement
         self.handle_input(actions)
         self.position.x += self.velocity_x * dt
-        self.player_rect.x = self.position.x  # Sync rect for collision check
+        self.rect.x = self.position.x  # Sync rect for collision check
         self.check_collision_x()
 
         # 2. Handle Gravity & Vertical Movement
         self.apply_gravity(dt)
         self.position.y += self.velocity_y * dt
-        self.player_rect.y = self.position.y  # Sync rect for collision check
+        self.rect.y = self.position.y  # Sync rect for collision check
         self.check_collision_y()
 
     def draw(self, screen, offset):
 
         self.rectangle_surface.fill(self.color)
-        draw_pos = (self.player_rect.x + offset[0], self.player_rect.y + offset[1])
+        draw_pos = (self.rect.x + offset[0], self.rect.y + offset[1])
         screen.blit(self.rectangle_surface, draw_pos)
 
     def handle_input(self, actions):
@@ -69,15 +75,10 @@ class Player(EntityBase):
                 case "TRANSFORM":
                     self.transformation_system.transform(self)
 
-    def check_collision_x(self):
-        # Check tiles specifically for horizontal overlaps
-        rect = self.get_collision_rect(self.player_rect)
-        if rect:
-            if self.velocity_x > 0:  # Moving Right
-                self.position.x = rect.left - self.player_rect.width
-            elif self.velocity_x < 0:  # Moving Left
-                self.position.x = rect.right
-            self.player_rect.x = self.position.x  # Snap rect to new position
+                case "ATTACK":
+                    self.wants_to_attack = True
+
+
 
     def apply_gravity(self, dt):
         # Apply constant gravity force
@@ -86,19 +87,28 @@ class Player(EntityBase):
             if self.velocity_y > constants.TERMINAL_VELOCITY:
                 self.velocity_y = constants.TERMINAL_VELOCITY
 
+    def check_collision_x(self):
+        # Check tiles specifically for horizontal overlaps
+        rect = self.get_collision_rect(self.rect)
+        if rect:
+            if self.velocity_x > 0:  # Moving Right
+                self.position.x = rect.left - self.rect.width
+            elif self.velocity_x < 0:  # Moving Left
+                self.position.x = rect.right
+            self.rect.x = self.position.x  # Snap rect to new position
 
     def check_collision_y(self):
         # Check tiles specifically for vertical overlaps (Floor/Ceiling)
-        rect = self.get_collision_rect(self.player_rect)
+        rect = self.get_collision_rect(self.rect)
         if rect:
             if self.velocity_y > 0:  # Falling (Hitting floor)
-                self.position.y = rect.top - self.player_rect.height
+                self.position.y = rect.top - self.rect.height
                 self.velocity_y = 0
                 self.is_jumping = False  # Reset jump ability
             elif self.velocity_y < 0:  # Jumping (Hitting ceiling)
                 self.position.y = rect.bottom
                 self.velocity_y = 0
-            self.player_rect.y = self.position.y  # Snap rect to new position
+            self.rect.y = self.position.y  # Snap rect to new position
 
     def get_collision_rect(self, obj_rect):
         # Returns the tile rect we collided with, or None
@@ -108,4 +118,7 @@ class Player(EntityBase):
         return None
 
     def get_player_rect(self):
-        return self.player_rect
+        return self.rect
+
+    def attack(self):
+        pass
