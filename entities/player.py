@@ -25,7 +25,7 @@ class Player(EntityBase):
         self.speed = 0
         self.color = 0
         self.jump_force = 0
-        self.health = 1000
+        self.health = 10000
         self.defense = 0
         self.attack = 100
         self.fortitude = 0

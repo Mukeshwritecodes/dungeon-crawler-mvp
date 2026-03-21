@@ -15,7 +15,12 @@ class Game:
         self.player_position = pygame.Vector2()
         self.enemy1_position = pygame.Vector2()
         self.enemy2_position = pygame.Vector2()
+
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
+
+        self.world_surface = pygame.Surface((WIDTH, HEIGHT))  # base resolution
+        self.zoom = 1.5
+
         pygame.display.set_caption(TITLE)
         self.clock = pygame.time.Clock()
         self.InputHandler = InputHandler()
@@ -74,7 +79,6 @@ class Game:
         self.player.update(dt, self.InputHandler.movement_handler(events))
         for enemy in self.enemies:
             enemy.update(dt)
-            enemy.update(dt)
             self.enemies = [e for e in self.enemies if e.is_alive]
 
         camera_rect = Camera.update_camera(self.player_rect, self.camera)
@@ -90,12 +94,26 @@ class Game:
         return True
 
     def draw(self):
-        self.screen.fill((0, 0, 0))
-        self.TileMap.draw(self.screen, self.offset)
-        self.player.draw(self.screen, self.offset)
+        # 1. Draw everything on world surface
+        self.world_surface.fill((0, 0, 0))
+
+        self.TileMap.draw(self.world_surface, self.offset)
+        self.player.draw(self.world_surface, self.offset)
+
         for enemy in self.enemies:
-            enemy.draw(self.screen, self.offset)
-            enemy.draw(self.screen, self.offset)
+            enemy.draw(self.world_surface, self.offset)
+
+        # 2. Scale ONCE (outside loop)
+        scaled_surface = pygame.transform.scale(
+            self.world_surface,
+            (int(self.world_surface.get_width() * self.zoom),
+             int(self.world_surface.get_height() * self.zoom))
+        )
+
+        screen_rect = self.screen.get_rect()
+        scaled_rect = scaled_surface.get_rect(center=screen_rect.center)
+
+        self.screen.blit(scaled_surface, scaled_rect)
 
         pygame.display.flip()
 

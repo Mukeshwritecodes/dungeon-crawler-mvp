@@ -9,7 +9,7 @@ class Camera:
     @staticmethod
     def update_camera(player_rect, camera_pos):
         camera_rect = pygame.Rect(0, 0, WIDTH, HEIGHT)
-        map_rect = pygame.Rect(0, 0, 80*32, 120*32)
+        map_rect = pygame.Rect(-200, 0, 100*32, 120*32)
         camera_x = player_rect.centerx - (WIDTH / 2)
         camera_y = player_rect.centery - (HEIGHT / 2)
         camera_pos.x = camera_x
