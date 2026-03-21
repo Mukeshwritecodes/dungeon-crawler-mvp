@@ -4,9 +4,9 @@ class InputHandler:
     def movement_handler(self, events):
         actions = []
         key = pygame.key.get_pressed()
-        if key[pygame.K_SPACE]:
+        if key[pygame.K_w] or key[pygame.K_SPACE] or key[pygame.K_UP]:
             actions.append("JUMP")
-        if key[pygame.K_DOWN]:
+        if key[pygame.K_s] or key[pygame.K_DOWN]:
             actions.append("DOWN")
         if key[pygame.K_d] or key[pygame.K_RIGHT]:
             actions.append("RIGHT")

@@ -19,7 +19,7 @@ class Game:
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
         self.world_surface = pygame.Surface((WIDTH, HEIGHT))  # base resolution
-        self.zoom = 1.5
+        self.zoom = 0.75
 
         pygame.display.set_caption(TITLE)
         self.clock = pygame.time.Clock()
