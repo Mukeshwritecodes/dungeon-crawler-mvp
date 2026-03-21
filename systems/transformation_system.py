@@ -4,7 +4,7 @@ from forms.slime_form import SlimeForm
 
 class TransformationSystem:
     def __init__(self):
-        self.forms = [BatForm(), SlimeForm(), BaseForm()]
+        self.forms = [BaseForm(), SlimeForm(), BatForm()]
         self.index = 0
 
     def transform(self, player):

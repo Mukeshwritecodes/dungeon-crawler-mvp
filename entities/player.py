@@ -1,7 +1,7 @@
 import pygame
 
 from forms.base_form import BaseForm
-from utils.constants import BASE_SPEED
+from utils.constants import BASE_SPEED, BASE_JUMP_FORCE
 from .entity_base import EntityBase
 from utils import constants
 from systems.transformation_system import TransformationSystem
@@ -11,20 +11,26 @@ class Player(EntityBase):
     def __init__(self, position, tile_rects):
         super().__init__(position, BASE_SPEED)
 
+        self.player_rect = pygame.Rect(self.position.x, self.position.y, 50, 100)
         self.tile_rects = tile_rects
+        self.rectangle_surface = pygame.Surface((50, 100))
+
         self.is_jumping = False
-        self.jump_force = -900  # Increased for dt scaling
+        self.is_flying = False
         self.velocity_x = 0
         self.velocity_y = 0
-        self.player_rect = pygame.Rect(self.position.x, self.position.y, 50, 100)
-        self.speed = BASE_SPEED
-        self.color = constants.BLUE
-        self.form = BaseForm()
+        self.speed = 0
+        self.color = 0
+        self.jump_force = 0
+        self.form = BaseForm().apply(self)
         self.transformation_system = TransformationSystem()
+
 
     def update(self, dt, actions):
         # Reset horizontal velocity each frame so player stops when key is released
         self.velocity_x = 0
+        if self.is_flying:
+            self.velocity_y = 0
 
         # 1. Handle Input & Horizontal Movement
         self.handle_input(actions)
@@ -39,15 +45,10 @@ class Player(EntityBase):
         self.check_collision_y()
 
     def draw(self, screen, offset):
-        # Drawing the player as a blue rectangle
-        # Create the surface (do this once, not every frame, for better performance)
-        rectangle_surface = pygame.Surface((50, 100))
-        rectangle_surface.fill(self.color)
 
-        # Calculate the draw position by adding the offset to the player's rect
+        self.rectangle_surface.fill(self.color)
         draw_pos = (self.player_rect.x + offset[0], self.player_rect.y + offset[1])
-
-        screen.blit(rectangle_surface, draw_pos)
+        screen.blit(self.rectangle_surface, draw_pos)
 
     def handle_input(self, actions):
         for action in actions:
@@ -57,9 +58,14 @@ class Player(EntityBase):
                 case "RIGHT":
                     self.velocity_x = self.speed
                 case "JUMP":
-                    if not self.is_jumping:
+                    if self.is_flying:
+                        self.velocity_y = self.jump_force
+                    if not self.is_jumping and not self.is_flying:
                         self.velocity_y = self.jump_force
                         self.is_jumping = True
+                case "DOWN":
+                    if self.is_flying:
+                        self.velocity_y = -self.jump_force
                 case "TRANSFORM":
                     self.transformation_system.transform(self)
 
@@ -75,9 +81,11 @@ class Player(EntityBase):
 
     def apply_gravity(self, dt):
         # Apply constant gravity force
-        self.velocity_y += constants.GRAVITY * dt
-        if self.velocity_y > constants.TERMINAL_VELOCITY:
-            self.velocity_y = constants.TERMINAL_VELOCITY
+        if not self.is_flying:
+            self.velocity_y += constants.GRAVITY * dt
+            if self.velocity_y > constants.TERMINAL_VELOCITY:
+                self.velocity_y = constants.TERMINAL_VELOCITY
+
 
     def check_collision_y(self):
         # Check tiles specifically for vertical overlaps (Floor/Ceiling)
