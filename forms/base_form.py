@@ -15,6 +15,5 @@ class BaseForm:
         player.is_flying = False
         #player.damage += 1
 
-    def update(self, player, dt):
-        pass
+
 

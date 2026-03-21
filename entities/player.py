@@ -11,9 +11,9 @@ class Player(EntityBase):
     def __init__(self, position, tile_rects):
         super().__init__(position, BASE_SPEED)
 
-        self.player_rect = pygame.Rect(self.position.x, self.position.y, 50, 100)
+        self.player_rect = pygame.Rect(self.position.x, self.position.y, 25, 25)
         self.tile_rects = tile_rects
-        self.rectangle_surface = pygame.Surface((50, 100))
+        self.rectangle_surface = pygame.Surface((25, 25))
 
         self.is_jumping = False
         self.is_flying = False

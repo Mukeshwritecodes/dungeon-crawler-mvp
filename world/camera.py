@@ -1,3 +1,5 @@
+import pygame
+
 from config import WIDTH, HEIGHT
 
 class Camera:
@@ -6,9 +8,13 @@ class Camera:
 
     @staticmethod
     def update_camera(player_rect, camera_pos):
+        camera_rect = pygame.Rect(0, 0, WIDTH, HEIGHT)
+        map_rect = pygame.Rect(0, 0, 80*32, 120*32)
         camera_x = player_rect.centerx - (WIDTH / 2)
         camera_y = player_rect.centery - (HEIGHT / 2)
         camera_pos.x = camera_x
         camera_pos.y = camera_y
-        return camera_pos
+        camera_rect.topleft = (camera_pos.x, camera_pos.y)
+        camera_rect.clamp_ip(map_rect)
+        return camera_rect
 

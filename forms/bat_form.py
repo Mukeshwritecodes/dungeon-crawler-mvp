@@ -7,6 +7,6 @@ class BatForm(BaseForm):
         multiplier = [3, 0.5]
         player.speed = self.base_speed * multiplier[0]
         player.jump_force = self.base_jump_force * multiplier[1]
-        player.color = constants.RED
         player.is_flying = True
+        player.color = constants.RED
         #player.defense += 2

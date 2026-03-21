@@ -13,6 +13,6 @@ class Helper:
         image = pygame.image.load(path).convert_alpha()
         return image
 
-
-
+    def load_animation(self, path):
+        pass
 

@@ -16,7 +16,7 @@ class TileMap:
                 "assets/tilesets/backgrounds/WOODS - First.png",
                 "assets/tilesets/backgrounds/VINES - Second.png"]
 
-        self.map_path = "assets/maps/demo_map.csv"
+        self.map_path = "assets/maps/demo_map2.csv"
         self.tileset_path = "assets/tilesets/Tilesheet - WOODS.png"
         self.tile_rects = []
 

@@ -20,7 +20,7 @@ class Enemy(EntityBase):
 
     def update(self, dt):
 
-        if not self.is_jumping and self.player_y_direction() == 1:
+        if not self.is_jumping and self.player_y_direction() == -1:
             self.velocity_y = self.jump_force
             self.is_jumping = True
 
@@ -94,7 +94,7 @@ class Enemy(EntityBase):
 
     def player_y_direction(self):
         distance = self.player_rect.y - self.position.y
-        if abs(distance) - self.player_rect.height < 0:
+        if distance < 0:
             return -1
         return 1
 
