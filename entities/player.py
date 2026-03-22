@@ -62,7 +62,8 @@ class Player(EntityBase):
 
         self.state = "idle"
         self.facing = "right"
-        self.current_animation = "idle_right"
+        self.current_animation_state = "idle_right"
+        self.current_animation = []
         # ---------------------------------#
 
     def update(self, dt, actions):
@@ -85,7 +86,7 @@ class Player(EntityBase):
         self.rect.y = self.position.y # Sync rect for collision check
         self.check_collision_y()
 
-        #---Animation detection---#
+        #-----Animation detection-----#
         if self.velocity_x > 0:
             self.state = "run"
             self.facing = "right"
@@ -110,6 +111,15 @@ class Player(EntityBase):
             if self.frame_index >= len(self.current_animation):
                 self.frame_index = 0
 
+        # Select the new state depending upon the input
+        new_state = f"{self.state}_{self.facing}"
+
+        # If state isn't the same as before, update state
+        if new_state != self.current_animation_state:
+            self.current_animation_state = new_state
+            self.current_animation = self.animations[new_state]
+            self.frame_index = 0
+
 
     def draw(self, screen, offset):
 
@@ -117,13 +127,6 @@ class Player(EntityBase):
         sprite = self.current_animation[self.frame_index]
         screen.blit(sprite, self.rect.move(offset))
 
-        # Select the new state depending upon the input
-        new_state = f"{self.state}_{self.facing}"
-
-        # If state isn't the same as before, update state
-        if new_state != self.current_animation:
-            self.current_animation = new_state
-            self.frame_index = 0
 
 
     def handle_input(self, actions):
@@ -133,12 +136,10 @@ class Player(EntityBase):
                 case "RIGHT":
                     self.velocity_x = self.speed # Positive direction while moving right
                     self.spritesheet_index = 0
-                    self.frame_index = 0
 
                 case "LEFT":
                     self.velocity_x = -self.speed # Negative direction while moving right
                     self.spritesheet_index = 1
-                    self.frame_index = 1
 
                 case "JUMP":
                     if self.can_fly:

@@ -35,11 +35,11 @@ class Game:
         self.player = Player(self.player_position, self.tile_rects)
         self.player_rect = self.player.get_player_rect()
 
-        self.enemy1_position.x = 447
+        self.enemy1_position.x = 800
         self.enemy1_position.y = 3303
         self.enemy1 = Enemy(self.enemy1_position, self.tile_rects, self.player)
 
-        self.enemy2_position.x = 447
+        self.enemy2_position.x = 600
         self.enemy2_position.y = 3303
         self.enemy2 = Enemy(self.enemy2_position, self.tile_rects, self.player)
 
