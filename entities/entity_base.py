@@ -1,8 +1,7 @@
 class EntityBase:
 
-    def __init__( self, position, velocity):
+    def __init__( self, position):
         self.position = position
-        self.velocity = velocity
 
     def update(self, dt):
         pass
