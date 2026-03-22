@@ -12,44 +12,44 @@ class Game:
 
     # Initializes the game objects
     def __init__(self):
-        self.player_position = pygame.Vector2()
-        self.enemy1_position = pygame.Vector2()
-        self.enemy2_position = pygame.Vector2()
 
+        # Important game object initialization
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
-
-        self.world_surface = pygame.Surface((WIDTH, HEIGHT))  # base resolution
-        self.zoom = 0.75
-
         pygame.display.set_caption(TITLE)
+        self.world_surface = pygame.Surface((WIDTH, HEIGHT))  # base resolution
+        self.zoom = ZOOM
         self.clock = pygame.time.Clock()
         self.InputHandler = InputHandler()
         self.TileMap = TileMap()
         self.tile_rects = self.TileMap.get_tile_rects()
+        self.camera = pygame.math.Vector2(0, 0)
+        self.offset = 0
+
+        # Player and Enemy objects
+        self.player_position = pygame.Vector2()
+        self.enemy1_position = pygame.Vector2()
+        self.enemy2_position = pygame.Vector2()
+
         self.player_position.x = 447
         self.player_position.y = 3303
+        self.player = Player(self.player_position, self.tile_rects)
+        self.player_rect = self.player.get_player_rect()
 
         self.enemy1_position.x = 447
         self.enemy1_position.y = 3303
+        self.enemy1 = Enemy(self.enemy1_position, self.tile_rects, self.player)
 
-        self.player = Player(self.player_position, self.tile_rects)
-        self.player_rect = self.player.get_player_rect()
-        self.enemy1 = Enemy(self.enemy1_position, BASE_SPEED * 0.3, self.tile_rects, self.player)
         self.enemy2_position.x = 447
         self.enemy2_position.y = 3303
-        self.enemy2 = Enemy(self.enemy2_position, BASE_SPEED * 0.5, self.tile_rects, self.player)
-        self.camera = pygame.math.Vector2(0, 0)
-        self.offset = 0
+        self.enemy2 = Enemy(self.enemy2_position, self.tile_rects, self.player)
 
         self.enemies = [self.enemy1, self.enemy2]
         self.combat_system = CombatSystem()
 
         self.running = True
 
-    # Runs the main game loop and call the important functions
+    # Runs the main game loop and call the draw and update methods
     def run(self):
-
-
 
         # Loop until 'X' is pressed
         while self.running:
@@ -64,12 +64,15 @@ class Game:
         events = pygame.event.get()
         self.running = self.handle_events(events)
 
+        '''If player wants to attack,
+         the combat system is called to compute the damage and handle the death'''
         if self.player.wants_to_attack:
             for enemy in self.enemies:
                 self.combat_system.attack(self.player, enemy)
 
             self.player.wants_to_attack = False
 
+        # Enemy attack works the same as the player attack
         for enemy in self.enemies:
             if enemy.wants_to_attack:
                 self.combat_system.attack(enemy, self.player)
@@ -79,7 +82,7 @@ class Game:
         self.player.update(dt, self.InputHandler.movement_handler(events))
         for enemy in self.enemies:
             enemy.update(dt)
-            self.enemies = [e for e in self.enemies if e.is_alive]
+            self.enemies = [e for e in self.enemies if e.is_alive] # Only the alive enemies are stored
 
         camera_rect = Camera.update_camera(self.player_rect, self.camera)
         camera = pygame.math.Vector2(camera_rect.x, camera_rect.y)
@@ -103,7 +106,7 @@ class Game:
         for enemy in self.enemies:
             enemy.draw(self.world_surface, self.offset)
 
-        # 2. Scale ONCE (outside loop)
+        # 2. Scale according to the zoom
         scaled_surface = pygame.transform.scale(
             self.world_surface,
             (int(self.world_surface.get_width() * self.zoom),

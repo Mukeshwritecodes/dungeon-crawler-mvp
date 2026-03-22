@@ -2,6 +2,8 @@ class CombatSystem:
     def __init__(self):
         pass
 
+    # If the rectangle collides, the target is in the range
+    # Will improve the range later
     def in_range(self, attacker_rect, target_rect):
         if attacker_rect.colliderect(target_rect):
             return True
@@ -19,11 +21,9 @@ class CombatSystem:
         else:
             return
 
-
     def calculate_damage(self, attacker, target):
             if target.is_alive:
                 target.health -= attacker.attack
-                print("getting damage", target.health)
                 self.handle_death(target)
 
 

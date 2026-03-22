@@ -10,66 +10,82 @@ from systems.transformation_system import TransformationSystem
 
 class Player(EntityBase):
     def __init__(self, position, tile_rects):
-        super().__init__(position, BASE_SPEED)
-
-        self.rect = pygame.Rect(self.position.x, self.position.y, 25, 25)
-        self.tile_rects = tile_rects
-        self.rectangle_surface = pygame.Surface((25, 25))
-
-        self.wants_to_attack = False
-        self.is_jumping = False
-        self.is_flying = False
-        self.is_alive = True
-        self.velocity_x = 0
-        self.velocity_y = 0
-        self.speed = 0
-        self.color = 0
-        self.jump_force = 0
-        self.health = 10000
-        self.defense = 0
-        self.attack = 100
-        self.fortitude = 0
-        self.form = BaseForm().apply(self)
-        self.transformation_system = TransformationSystem()
+        super().__init__(position)
 
         helper = Helper()
+        self.rectangle_surface = pygame.Surface((32, 32))
+
+        # For collision detection and movement
+        self.tile_rects = tile_rects
+        self.rect = pygame.Rect(self.position.x, self.position.y, 28, 28)
+
+        # Not moving, hence 0
+        self.velocity_x = 0
+        self.velocity_y = 0
+
+        #------Player status fields------#
+        self.is_alive = True
+        self.wants_to_attack = False
+        self.is_jumping = False
+        self.can_fly = False
+        self.speed = 0
+        self.jump_force = 0
+        self.health = 0
+        self.defense = 0
+        self.attack = 0
+        self.fortitude = 0
+
+        # Base form initializes all the base stats
+        self.form = BaseForm().apply(self)
+        #---------------------------------#
+
+        # Transformation available - Player(Base-form), Bat, Slime
+        self.transformation_system = TransformationSystem()
+
+        #-------Animation loading--------#
         self.running_right = helper.load_sprites("assets/sprites/player-running-right.png", 32)
         self.running_left = helper.load_sprites("assets/sprites/player-running-left.png", 32)
         self.idle_right = helper.load_sprites("assets/sprites/idle-right.png", 32)
         self.idle_left = helper.load_sprites("assets/sprites/idle-left.png", 32)
+
         self.animations = {
             "idle_right": self.idle_right,
             "idle_left": self.idle_left,
             "run_right": self.running_right,
             "run_left": self.running_left
         }
+
         self.spritesheet_index = 0
         self.frame_index = 0
-        self.animation_timer = 0
-        self.animation_speed = 0.1
+        self.animation_speed = 0.1 # Time between each frame
+        self.animation_timer = 0 # Clock to make sure speed is constant at 0.1
 
         self.state = "idle"
         self.facing = "right"
         self.current_animation = "idle_right"
+        # ---------------------------------#
 
     def update(self, dt, actions):
         # Reset horizontal velocity each frame so player stops when key is released
         self.velocity_x = 0
-        if self.is_flying:
+
+        # Reset velocity per frame to stop from continues flying or sinking
+        if self.can_fly:
             self.velocity_y = 0
 
         # 1. Handle Input & Horizontal Movement
         self.handle_input(actions)
         self.position.x += self.velocity_x * dt
-        self.rect.x = self.position.x  # Sync rect for collision check
+        self.rect.x = self.position.x # Sync rect for collision check
         self.check_collision_x()
 
         # 2. Handle Gravity & Vertical Movement
         self.apply_gravity(dt)
         self.position.y += self.velocity_y * dt
-        self.rect.y = self.position.y  # Sync rect for collision check
+        self.rect.y = self.position.y # Sync rect for collision check
         self.check_collision_y()
 
+        #---Animation detection---#
         if self.velocity_x > 0:
             self.state = "run"
             self.facing = "right"
@@ -79,28 +95,32 @@ class Player(EntityBase):
         else:
             self.state = "idle"
 
+        # Select the current animation from the dictionary
         self.current_animation = self.animations[f"{self.state}_{self.facing}"]
 
+        # Clock
         self.animation_timer += dt
 
+        # Increment frame index and reset the clock
         if self.animation_timer >= self.animation_speed:
             self.animation_timer = 0
             self.frame_index += 1
 
+            # Reset frame index to avoid index out of bound and continue the animation
             if self.frame_index >= len(self.current_animation):
                 self.frame_index = 0
 
 
     def draw(self, screen, offset):
 
-        #self.rectangle_surface.fill(self.color)
-        #draw_pos = (self.rect.x + offset[0], self.rect.y + offset[1])
-        #screen.blit(self.rectangle_surface, draw_pos)
-
+        # Select the sprite and render it
         sprite = self.current_animation[self.frame_index]
         screen.blit(sprite, self.rect.move(offset))
+
+        # Select the new state depending upon the input
         new_state = f"{self.state}_{self.facing}"
 
+        # If state isn't the same as before, update state
         if new_state != self.current_animation:
             self.current_animation = new_state
             self.frame_index = 0
@@ -109,23 +129,28 @@ class Player(EntityBase):
     def handle_input(self, actions):
         for action in actions:
             match action:
+
                 case "RIGHT":
-                    self.velocity_x = self.speed
+                    self.velocity_x = self.speed # Positive direction while moving right
                     self.spritesheet_index = 0
                     self.frame_index = 0
+
                 case "LEFT":
-                    self.velocity_x = -self.speed
+                    self.velocity_x = -self.speed # Negative direction while moving right
                     self.spritesheet_index = 1
                     self.frame_index = 1
+
                 case "JUMP":
-                    if self.is_flying:
+                    if self.can_fly:
                         self.velocity_y = self.jump_force
-                    if not self.is_jumping and not self.is_flying:
+                    if not self.is_jumping and not self.can_fly:
                         self.velocity_y = self.jump_force
                         self.is_jumping = True
+
                 case "DOWN":
-                    if self.is_flying:
+                    if self.can_fly:
                         self.velocity_y = -self.jump_force
+
                 case "TRANSFORM":
                     self.transformation_system.transform(self)
 
@@ -134,14 +159,14 @@ class Player(EntityBase):
 
 
     def apply_gravity(self, dt):
-        # Apply constant gravity force
-        if not self.is_flying:
+        # Apply constant gravity force when not flying
+        if not self.can_fly:
             self.velocity_y += constants.GRAVITY * dt
             if self.velocity_y > constants.TERMINAL_VELOCITY:
                 self.velocity_y = constants.TERMINAL_VELOCITY
 
     def check_collision_x(self):
-        # Check tiles specifically for horizontal overlaps
+        # Check tiles for horizontal overlaps
         rect = self.get_collision_rect(self.rect)
         if rect:
             if self.velocity_x > 0:  # Moving Right
@@ -151,7 +176,7 @@ class Player(EntityBase):
             self.rect.x = self.position.x  # Snap rect to new position
 
     def check_collision_y(self):
-        # Check tiles specifically for vertical overlaps (Floor/Ceiling)
+        # Check tiles for vertical overlaps (Floor/Ceiling)
         rect = self.get_collision_rect(self.rect)
         if rect:
             if self.velocity_y > 0:  # Falling (Hitting floor)
