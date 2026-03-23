@@ -89,11 +89,8 @@ class Player(EntityBase):
         # Increment frame index and reset the clock
         if self.animation_timer >= self.animation_speed:
             self.animation_timer = 0
-            self.frame_index += 1
 
-            # Reset frame index to avoid index out of bound and continue the animation
-            if self.frame_index >= len(self.current_animation):
-                self.frame_index = 0
+            self.frame_index = (self.frame_index + 1) % len(self.current_animation)
 
         # Select the new state depending upon the input
         new_state = f"{self.state}_{self.facing}"
@@ -121,9 +118,7 @@ class Player(EntityBase):
         screen.blit(sprite, draw_pos)
 
         #DEBUG - Visible collision rect
-        pygame.draw.rect(screen, (255, 0, 0), self.rect.move(offset), 2)
-        pygame.draw.circle(screen, (0, 255, 0), self.rect.center, 3)
-
+        #pygame.draw.rect(screen, (255, 0, 0), self.rect.move(offset), 2)
 
 
     def handle_input(self, actions):
@@ -150,6 +145,7 @@ class Player(EntityBase):
                 case "TRANSFORM":
                     self.transformation_system.transform(self)
                     self.velocity_y = 0
+                    self.frame_index = 0
 
                 case "ATTACK":
                     self.wants_to_attack = True
