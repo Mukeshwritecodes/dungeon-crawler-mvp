@@ -10,7 +10,7 @@ class Enemy(EntityBase):
         super().__init__(position)
 
         helper = Helper()
-        self.jump_force = -200  # Increased for dt scaling
+        self.jump_force = -240  # Increased for dt scaling
         self.tile_rects = tile_rects
         self.is_alive = True
         self.is_jumping = False
@@ -43,9 +43,8 @@ class Enemy(EntityBase):
             "jump_left": self.jump_left
         }
 
-        self.spritesheet_index = 0
         self.frame_index = 0
-        self.animation_speed = 0.1  # Time between each frame
+        self.animation_speed = 0.2  # Time between each frame
         self.animation_timer = 0  # Clock to make sure speed is constant at 0.1
 
         self.state = "idle"
@@ -60,17 +59,6 @@ class Enemy(EntityBase):
         if not self.is_jumping and self.player_y_direction() == -1:
             self.velocity_y = self.jump_force
             self.is_jumping = True
-            if self.player_x_direction() == -1:
-                self.spritesheet_index = 4 # Right jump
-            else:
-                self.spritesheet_index = 5 # Left jump
-        # Not jumping
-        else:
-            if self.player_y_direction() == -1:
-                self.spritesheet_index = 2 # Running right
-            else:
-                self.spritesheet_index = 3 # Running left
-
 
         '''If the enemy and the player rect collides, then
          the player is in the enemy's range, and it can attack'''
@@ -191,8 +179,7 @@ class Enemy(EntityBase):
     # identifies players vertical direction to toggle jumping
     def player_y_direction(self):
         distance = self.player_rect.y - self.position.y
-
-        if distance + self.player_rect.height > 0:
+        if distance > -100:
             return 1 # Player is below
         return -1 # Player is above
 

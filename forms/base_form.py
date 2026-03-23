@@ -1,4 +1,5 @@
 from utils import constants
+from utils.helpers import Helper
 
 
 class BaseForm:
@@ -10,6 +11,15 @@ class BaseForm:
         self.base_attack = constants.BASE_PLAYER_ATTACK
         self.base_defense = constants.BASE_PLAYER_DEFENSE
 
+        helper = Helper()
+
+        self.running_right = helper.load_sprites("assets/sprites/player-running-right.png", 32)
+        self.running_left = helper.load_sprites("assets/sprites/player-running-left.png", 32)
+        self.idle_right = helper.load_sprites("assets/sprites/idle-right.png", 32)
+        self.idle_left = helper.load_sprites("assets/sprites/idle-left.png", 32)
+
+
+
     def apply(self, player):
         player.speed = self.base_speed
         player.color = self.color
@@ -19,5 +29,26 @@ class BaseForm:
         player.attack = self.base_attack
         player.can_fly = False
 
+        player.animations = {
+            "idle_right": self.idle_right,
+            "idle_left": self.idle_left,
+            "run_right": self.running_right,
+            "run_left": self.running_left
+        }
+
+        player.state = "idle"
+        player.facing = "right"
+        player.current_animation_state = "idle_right"
+
+
+    def detect_animation(self, player):
+        if player.velocity_x > 0:
+            player.state = "run"
+            player.facing = "right"
+        elif player.velocity_x < 0:
+            player.state = "run"
+            player.facing = "left"
+        else:
+            player.state = "idle"
 
 

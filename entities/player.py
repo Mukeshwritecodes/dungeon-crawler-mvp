@@ -34,35 +34,23 @@ class Player(EntityBase):
         self.defense = 0
         self.attack = 0
         self.fortitude = 0
+        self.animations = {}
+        self.state = "none"
+        self.facing = "none"
+        self.current_animation_state = "none"
 
-        # Base form initializes all the base stats
-        self.form = BaseForm().apply(self)
+        self.form = BaseForm()
+        self.form.apply(self)
+        # Base form initializes all the base stats & animation
         #---------------------------------#
 
-        # Transformation available - Player(Base-form), Bat, Slime
+        # Transformation available - Player(Base form), Bat, Slime
         self.transformation_system = TransformationSystem()
 
-        #-------Animation loading--------#
-        self.running_right = helper.load_sprites("assets/sprites/player-running-right.png", 32)
-        self.running_left = helper.load_sprites("assets/sprites/player-running-left.png", 32)
-        self.idle_right = helper.load_sprites("assets/sprites/idle-right.png", 32)
-        self.idle_left = helper.load_sprites("assets/sprites/idle-left.png", 32)
-
-        self.animations = {
-            "idle_right": self.idle_right,
-            "idle_left": self.idle_left,
-            "run_right": self.running_right,
-            "run_left": self.running_left
-        }
-
-        self.spritesheet_index = 0
         self.frame_index = 0
         self.animation_speed = 0.1 # Time between each frame
         self.animation_timer = 0 # Clock to make sure speed is constant at 0.1
 
-        self.state = "idle"
-        self.facing = "right"
-        self.current_animation_state = "idle_right"
         self.current_animation = []
         # ---------------------------------#
 
@@ -87,14 +75,8 @@ class Player(EntityBase):
         self.check_collision_y()
 
         #-----Animation detection-----#
-        if self.velocity_x > 0:
-            self.state = "run"
-            self.facing = "right"
-        elif self.velocity_x < 0:
-            self.state = "run"
-            self.facing = "left"
-        else:
-            self.state = "idle"
+
+        self.form.detect_animation(self)
 
         # Select the current animation from the dictionary
         self.current_animation = self.animations[f"{self.state}_{self.facing}"]
@@ -135,11 +117,9 @@ class Player(EntityBase):
 
                 case "RIGHT":
                     self.velocity_x = self.speed # Positive direction while moving right
-                    self.spritesheet_index = 0
 
                 case "LEFT":
                     self.velocity_x = -self.speed # Negative direction while moving right
-                    self.spritesheet_index = 1
 
                 case "JUMP":
                     if self.can_fly:

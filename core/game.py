@@ -18,12 +18,12 @@ class Game:
         pygame.display.set_caption(TITLE)
         self.world_surface = pygame.Surface((WIDTH, HEIGHT))  # base resolution
         self.zoom = ZOOM
+        self.camera_speed = CAMERA_SPEED
         self.clock = pygame.time.Clock()
         self.InputHandler = InputHandler()
         self.TileMap = TileMap()
         self.tile_rects = self.TileMap.get_tile_rects()
-        self.camera = pygame.math.Vector2(0, 0)
-        self.offset = 0
+
 
         # Player and Enemy objects
         self.player_position = pygame.Vector2()
@@ -31,9 +31,15 @@ class Game:
         self.enemy2_position = pygame.Vector2()
 
         self.player_position.x = 447
-        self.player_position.y = 3303
+        self.player_position.y = 3280
         self.player = Player(self.player_position, self.tile_rects)
         self.player_rect = self.player.get_player_rect()
+
+        self.camera = pygame.math.Vector2(
+            self.player_rect.centerx - WIDTH // 2,
+            self.player_rect.centery - HEIGHT // 2
+        )
+        self.offset = -self.camera
 
         self.enemy1_position.x = 800
         self.enemy1_position.y = 3303
@@ -47,6 +53,11 @@ class Game:
         self.combat_system = CombatSystem()
 
         self.running = True
+
+        self.vignette_surface = pygame.image.load("assets/tilesets/backgrounds/Vignette.png").convert_alpha()
+        self.vignette_surface = pygame.transform.scale(self.vignette_surface,(WIDTH, HEIGHT))
+        self.vignette_surface.set_colorkey((0, 0, 0))  # remove black
+
 
     # Runs the main game loop and call the draw and update methods
     def run(self):
@@ -84,7 +95,7 @@ class Game:
             enemy.update(dt)
             self.enemies = [e for e in self.enemies if e.is_alive] # Only the alive enemies are stored
 
-        camera_rect = Camera.update_camera(self.player_rect, self.camera)
+        camera_rect = Camera.update_camera(self.player_rect, self.camera, self.camera_speed)
         camera = pygame.math.Vector2(camera_rect.x, camera_rect.y)
         self.offset = -camera
 
@@ -117,6 +128,9 @@ class Game:
         scaled_rect = scaled_surface.get_rect(center=screen_rect.center)
 
         self.screen.blit(scaled_surface, scaled_rect)
+        self.screen.blit(self.vignette_surface, (0, 0))
 
         pygame.display.flip()
+
+
 
