@@ -20,11 +20,12 @@ class SlimeForm(BaseForm):
         self.facing = "right"
         self.current_animation_state = "idle_right"
 
+
     def apply(self, player):
 
         multiplier = {
             "speed": 0.5,
-            "jump_force": 0.5,
+            "jump_force": 0.7,
             "health": 1,
             "defense": 1.5,
             "attack": 2
@@ -46,8 +47,23 @@ class SlimeForm(BaseForm):
             "jump_left": self.jumping_left,
         }
 
-        player.rect.height = 16
+        # Save bottom center (this is enough)
+        bottom_center = player.rect.midbottom
+
+        # Resize
         player.rect.width = 16
+        player.rect.height = 16
+
+        # Restore alignment
+        player.rect.midbottom = bottom_center
+
+        # Sync position
+        player.position.x = player.rect.x
+        player.position.y = player.rect.y
+
+        # Adjust sprite offset
+        player.draw_offset.x = -(16 - player.rect.width) // 2
+        player.draw_offset.y = -(16 - player.rect.height)
 
     def detect_animation(self, player):
         if player.velocity_y < 0:

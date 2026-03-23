@@ -40,6 +40,23 @@ class BaseForm:
         player.facing = "right"
         player.current_animation_state = "idle_right"
 
+        # Save bottom center (this is enough)
+        bottom_center = player.rect.midbottom
+
+        # Resize
+        player.rect.width = 18
+        player.rect.height = 20
+
+        # Restore alignment
+        player.rect.midbottom = bottom_center
+
+        # Sync position
+        player.position.x = player.rect.x
+        player.position.y = player.rect.y
+
+        # Adjust sprite offset
+        player.draw_offset.x = -(32 - player.rect.width) // 2
+        player.draw_offset.y = -(32 - player.rect.height) + 4
 
     def detect_animation(self, player):
         if player.velocity_x > 0:

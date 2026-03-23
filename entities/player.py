@@ -17,7 +17,9 @@ class Player(EntityBase):
 
         # For collision detection and movement
         self.tile_rects = tile_rects
-        self.rect = pygame.Rect(self.position.x, self.position.y, 28, 28)
+        self.rect = pygame.Rect(self.position.x, self.position.y, 32, 32)
+
+        self.draw_offset = pygame.Vector2(0, 0)
 
         # Not moving, hence 0
         self.velocity_x = 0
@@ -107,7 +109,20 @@ class Player(EntityBase):
 
         # Select the sprite and render it
         sprite = self.current_animation[self.frame_index]
-        screen.blit(sprite, self.rect.move(offset))
+
+        draw_x = self.rect.x - (sprite.get_width() - self.rect.width) // 2
+        draw_y = self.rect.y - (sprite.get_height() - self.rect.height)
+
+        draw_pos = (
+            self.rect.x + offset[0] + self.draw_offset.x,
+            self.rect.y + offset[1] + self.draw_offset.y
+        )
+
+        screen.blit(sprite, draw_pos)
+
+        #DEBUG - Visible collision rect
+        pygame.draw.rect(screen, (255, 0, 0), self.rect.move(offset), 2)
+        pygame.draw.circle(screen, (0, 255, 0), self.rect.center, 3)
 
 
 
@@ -134,6 +149,7 @@ class Player(EntityBase):
 
                 case "TRANSFORM":
                     self.transformation_system.transform(self)
+                    self.velocity_y = 0
 
                 case "ATTACK":
                     self.wants_to_attack = True
@@ -161,13 +177,14 @@ class Player(EntityBase):
         rect = self.get_collision_rect(self.rect)
         if rect:
             if self.velocity_y > 0:  # Falling (Hitting floor)
-                self.position.y = rect.top - self.rect.height
+                self.rect.bottom = rect.top
+                self.position.y = self.rect.y
                 self.velocity_y = 0
                 self.is_jumping = False  # Reset jump ability
             elif self.velocity_y < 0:  # Jumping (Hitting ceiling)
                 self.position.y = rect.bottom
                 self.velocity_y = 0
-            self.rect.y = self.position.y  # Snap rect to new position
+            self.rect.y = self.position.y # Snap rect to new position
 
     def get_collision_rect(self, obj_rect):
         # Returns the tile rect we collided with, or None
