@@ -1,6 +1,7 @@
 import pygame
 
 from forms.base_form import BaseForm
+from systems.xp_system import XPSystem
 from utils.constants import BASE_SPEED, BASE_JUMP_FORCE
 from .entity_base import EntityBase
 from utils import constants
@@ -25,7 +26,7 @@ class Player(EntityBase):
         self.velocity_x = 0
         self.velocity_y = 0
 
-        #------Player status fields------#
+        #----- Player status fields -----#
         self.is_alive = True
         self.wants_to_attack = False
         self.is_jumping = False
@@ -44,7 +45,17 @@ class Player(EntityBase):
         self.form = BaseForm()
         self.form.apply(self)
         # Base form initializes all the base stats & animation
-        #---------------------------------#
+
+        #--------- Player level ----------#
+        # Player level, handled by xp_system
+        self.level = 1
+        self.xp = 0
+        self.level_xp = 1000
+        self.xp_system = XPSystem()
+        self.kill_log = {
+            "slime": [0, 0]
+        }
+        #-------- Transformation ---------#
 
         # Transformation available - Player(Base form), Bat, Slime
         self.transformation_system = TransformationSystem()
@@ -54,7 +65,7 @@ class Player(EntityBase):
         self.animation_timer = 0 # Clock to make sure speed is constant at 0.1
 
         self.current_animation = []
-        # ---------------------------------#
+        # --------------------------------#
 
     def update(self, dt, actions):
         # Reset horizontal velocity each frame so player stops when key is released

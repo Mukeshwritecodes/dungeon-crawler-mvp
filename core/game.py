@@ -1,6 +1,7 @@
 import pygame
 from config import *
 from systems.combat_system import CombatSystem
+from systems.xp_system import XPSystem
 from utils.constants import *
 from .input_handler import InputHandler
 from entities.player import Player
@@ -24,14 +25,13 @@ class Game:
         self.TileMap = TileMap()
         self.tile_rects = self.TileMap.get_tile_rects()
 
-
         # Player and Enemy objects
         self.player_position = pygame.Vector2()
         self.enemy1_position = pygame.Vector2()
         self.enemy2_position = pygame.Vector2()
 
         self.player_position.x = 447
-        self.player_position.y = 3280
+        self.player_position.y = 3300
         self.player = Player(self.player_position, self.tile_rects)
         self.player_rect = self.player.get_player_rect()
 
@@ -57,6 +57,8 @@ class Game:
         self.vignette_surface = pygame.image.load("assets/tilesets/backgrounds/Vignette.png").convert_alpha()
         self.vignette_surface = pygame.transform.scale(self.vignette_surface,(WIDTH, HEIGHT))
         self.vignette_surface.set_colorkey((0, 0, 0))  # remove black
+
+        self.xp_system = XPSystem()
 
 
     # Runs the main game loop and call the draw and update methods
@@ -93,12 +95,14 @@ class Game:
         self.player.update(dt, self.InputHandler.movement_handler(events))
         for enemy in self.enemies:
             enemy.update(dt)
-            self.enemies = [e for e in self.enemies if e.is_alive] # Only the alive enemies are stored
+            if not enemy.is_alive:
+                self.xp_system.calculate_xp(self.player, enemy.type, enemy.xp)
+
+        self.enemies = [e for e in self.enemies if e.is_alive] # Only the alive enemies are stored
 
         camera_rect = Camera.update_camera(self.player_rect, self.camera, self.camera_speed)
         camera = pygame.math.Vector2(camera_rect.x, camera_rect.y)
         self.offset = -camera
-
 
 
     def handle_events(self, events):

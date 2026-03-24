@@ -19,7 +19,9 @@ class Enemy(EntityBase):
         self.health = 500
         self.defense = 250
         self.attack = 50
-
+        self.type = "slime"
+        self.level = 5
+        self.xp = 10000
 
         self.velocity_x = 0
         self.velocity_y = 0

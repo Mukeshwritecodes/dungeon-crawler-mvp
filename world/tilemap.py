@@ -17,6 +17,11 @@ class TileMap:
                 "assets/tilesets/backgrounds/WOODS - First.png",
                 "assets/tilesets/backgrounds/VINES - Second.png"]
 
+        #self.bg_path = ["assets/tilesets/backgrounds/Layer 4.png",
+         #               "assets/tilesets/backgrounds/Layer 3.png",
+          #              "assets/tilesets/backgrounds/Layer 2.png",
+           #             "assets/tilesets/backgrounds/Layer 1.png"]
+
         self.map_path = "assets/maps/demo_map2.csv"
         self.tileset_path = "assets/tilesets/Tilesheet - WOODS.png"
 
@@ -24,6 +29,10 @@ class TileMap:
 
         # Later for collision
         self.tile_rects = []
+
+        self.platform_map = self.load_map(self.map_path)
+        self.tileset = self.helper.load_image(self.tileset_path)
+        self.tileset_cols = self.tileset.get_width() // TILE_SIZE
 
 
     def draw(self, screen, offset):
@@ -38,22 +47,19 @@ class TileMap:
 
     # Renders the platforms. Also adds the camera offset
     def platform(self, screen, offset):
-        platform_map = self.load_map(self.map_path)
-        tileset = self.helper.load_image(self.tileset_path)
-
-        tileset_cols = tileset.width / TILE_SIZE
 
         # For each column from each row
-        for row_index, row in enumerate(platform_map):
+        for row_index, row in enumerate(self.platform_map):
             for col_index, tile_id in enumerate(row):
 
-                if int(tile_id) != -1: # -1 if no tile on that place
-                    tile_id = int(tile_id) # String to integer
+                tile_id = int(tile_id.strip())
 
-                    x = int(tile_id % tileset_cols) # eg. tile_id(130) % cols(16) = 2nd column
-                    y = int(tile_id // tileset_cols) #eg. tile_id(130) // cols(16) = 8th row
+                if tile_id != -1: # -1 if no tile on that place
 
-                    tile = self.get_tile(tileset, x * TILE_SIZE, y * TILE_SIZE)
+                    x = int(tile_id % self.tileset_cols) # eg. tile_id(130) % cols(16) = 2nd column
+                    y = int(tile_id // self.tileset_cols) #eg. tile_id(130) // cols(16) = 8th row
+
+                    tile = self.get_tile(self.tileset, x * TILE_SIZE, y * TILE_SIZE)
                     tile_rect = pygame.Rect(col_index * TILE_SIZE, row_index * TILE_SIZE, TILE_SIZE, TILE_SIZE)
                     screen.blit(tile, tile_rect.move(offset))
 
@@ -80,8 +86,11 @@ class TileMap:
         platform_map = self.load_map(self.map_path)
         for row_index, row in enumerate(platform_map):
             for col_index, tile_id in enumerate(row):
-                if int(tile_id) != -1:
+                tile_id = int(tile_id.strip())
+
+                if tile_id != -1:
                     tile_rect = pygame.Rect(col_index * TILE_SIZE, row_index * TILE_SIZE, TILE_SIZE, TILE_SIZE)
                     self.tile_rects.append(tile_rect)
 
         return self.tile_rects
+
