@@ -18,9 +18,13 @@ class UISystem:
         height = 15
         x, y = 20, 20
 
-        ratio = player.health / player.max_health
-        pygame.draw.rect(screen, (255, 0, 0), (x, y, max_width * ratio, height))
-        pygame.draw.rect(screen, (255, 255, 255), (x, y, max_width, height), 2)
+        if not player.is_alive:
+            pygame.draw.rect(screen, (255, 0, 0), (x, y, 0, height))
+            pygame.draw.rect(screen, (255, 255, 255), (x, y, max_width, height), 2)
+        else:
+            ratio = player.health / player.max_health
+            pygame.draw.rect(screen, (255, 0, 0), (x, y, max_width * ratio, height))
+            pygame.draw.rect(screen, (255, 255, 255), (x, y, max_width, height), 2)
 
     def draw_xp_bar(self, screen, player):
         max_width = 200

@@ -10,10 +10,11 @@ from systems.transformation_system import TransformationSystem
 
 
 class Player(EntityBase):
-    def __init__(self, position, tile_rects):
+    def __init__(self, position, tile_rects, sound):
         super().__init__(position)
 
         helper = Helper()
+        self.sound = sound
         self.rectangle_surface = pygame.Surface((32, 32))
 
         # For collision detection and movement
@@ -49,7 +50,7 @@ class Player(EntityBase):
 
         #--------- Player level ----------#
         # Player level, handled by xp_system
-        self.level = 1
+        self.level = 10
         self.xp = 0
         self.level_xp = 50
         self.xp_system = XPSystem()
@@ -70,7 +71,21 @@ class Player(EntityBase):
         self.current_animation = []
         # --------------------------------#
 
+        self.spawn_point = pygame.Vector2(self.position.x, self.position.y)
+        self.respawn_timer = 0
+        self.respawn_delay = 1.5  # seconds
+
     def update(self, dt, actions):
+
+        if not self.is_alive:
+            self.respawn_timer += dt
+
+            if self.respawn_timer >= self.respawn_delay:
+                self.respawn_timer = 0
+                self.respawn()
+
+            return  # stop normal update when dead
+
         # Reset horizontal velocity each frame so player stops when key is released
         self.velocity_x = 0
 
@@ -116,6 +131,8 @@ class Player(EntityBase):
             self.frame_index = 0
 
 
+
+
     def draw(self, screen, offset):
 
         if not self.current_animation:
@@ -132,7 +149,7 @@ class Player(EntityBase):
         screen.blit(sprite, draw_pos)
 
         #DEBUG - Visible collision rect
-        pygame.draw.rect(screen, (255, 0, 0), self.rect.move(offset), 2)
+        #pygame.draw.rect(screen, (255, 0, 0), self.rect.move(offset), 2)
 
 
     def handle_input(self, actions):
@@ -151,6 +168,7 @@ class Player(EntityBase):
                     if not self.is_jumping and not self.can_fly:
                         self.velocity_y = self.jump_force
                         self.is_jumping = True
+                        self.sound.play("jump")
 
                 case "DOWN":
                     if self.can_fly:
@@ -163,6 +181,7 @@ class Player(EntityBase):
 
                 case "ATTACK":
                     self.wants_to_attack = True
+                    self.sound.play("attack")
 
 
     def apply_gravity(self, dt):
@@ -206,4 +225,12 @@ class Player(EntityBase):
     def get_player_rect(self):
         return self.rect
 
+    def respawn(self):
+        self.position = self.spawn_point.copy()
+        self.rect.topleft = self.position
 
+        self.velocity_x = 0
+        self.velocity_y = 0
+
+        self.health = self.form.base_max_health
+        self.is_alive = True

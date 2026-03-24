@@ -4,93 +4,124 @@ from utils.constants import TILE_SIZE
 from utils.helpers import Helper
 import csv
 
+
 class TileMap:
 
     def __init__(self):
 
-        # Paths for background, map, and tileset
-        self.bg_path = ["assets/tilesets/backgrounds/BACKGROUND.png",
-                "assets/tilesets/backgrounds/WOODS - Fourth.png",
-                "assets/tilesets/backgrounds/WOODS - Third.png",
-                "assets/tilesets/backgrounds/WOODS - Second.png",
-                "assets/tilesets/backgrounds/BUSH - BACKGROUND.png",
-                "assets/tilesets/backgrounds/WOODS - First.png",
-                "assets/tilesets/backgrounds/VINES - Second.png"]
+        self.tileset_path = "assets/tilesets/CastleTiles.png"
 
-        #self.bg_path = ["assets/tilesets/backgrounds/Layer 4.png",
-         #               "assets/tilesets/backgrounds/Layer 3.png",
-          #              "assets/tilesets/backgrounds/Layer 2.png",
-           #             "assets/tilesets/backgrounds/Layer 1.png"]
-
-        self.map_path = "assets/maps/demo_map2.csv"
-        self.tileset_path = "assets/tilesets/Tilesheet - WOODS.png"
+        self.map_paths = {
+            "background": [
+                "assets/maps/dungeon tiless_black.csv",
+                "assets/maps/dungeon tiless_background.csv",
+                "assets/maps/dungeon tiless_decoration.csv",
+                "assets/maps/dungeon tiless_Spike.csv"
+            ],
+            "main": "assets/maps/dungeon tiless_Tile Layer.csv",
+            "spikes": "assets/maps/dungeon tiless_Spike.csv",
+        }
 
         self.helper = Helper()
 
-        # Later for collision
-        self.tile_rects = []
+        # ----- LOAD MAPS ONCE ----- #
+        self.maps = {}
 
-        self.platform_map = self.load_map(self.map_path)
+        for key, paths in self.map_paths.items():
+            if isinstance(paths, list):
+                self.maps[key] = [self.load_map(p) for p in paths]
+            else:
+                self.maps[key] = self.load_map(paths)
+
+        # Load tileset once
         self.tileset = self.helper.load_image(self.tileset_path)
-        self.tileset_cols = self.tileset.get_width() // TILE_SIZE
 
-
+    # ----- DRAW ----- #
     def draw(self, screen, offset):
-        self.background(screen)
-        self.platform(screen, offset)
 
-    # Draws all the layer of the background in sequence of the path list
-    def background(self, screen):
-        for i in self.bg_path:
-            background_surface = self.load_background(i)
-            screen.blit(background_surface, (0, 0))
+        # Background layers
+        for layer_map in self.maps["background"]:
+            self.render_layer(screen, layer_map, offset)
 
-    # Renders the platforms. Also adds the camera offset
-    def platform(self, screen, offset):
+        # Main layer
+        self.render_layer(screen, self.maps["main"], offset)
 
-        # For each column from each row
-        for row_index, row in enumerate(self.platform_map):
+    # ----- RENDER LAYER ----- #
+    def render_layer(self, screen, layer_map, offset):
+
+        tileset_cols = self.tileset.get_width() // TILE_SIZE
+
+        for row_index, row in enumerate(layer_map):
             for col_index, tile_id in enumerate(row):
 
                 tile_id = int(tile_id.strip())
 
-                if tile_id != -1: # -1 if no tile on that place
+                if tile_id != -1:
 
-                    x = int(tile_id % self.tileset_cols) # eg. tile_id(130) % cols(16) = 2nd column
-                    y = int(tile_id // self.tileset_cols) #eg. tile_id(130) // cols(16) = 8th row
+                    x = tile_id % tileset_cols
+                    y = tile_id // tileset_cols
 
                     tile = self.get_tile(self.tileset, x * TILE_SIZE, y * TILE_SIZE)
-                    tile_rect = pygame.Rect(col_index * TILE_SIZE, row_index * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+
+                    tile_rect = pygame.Rect(
+                        col_index * TILE_SIZE,
+                        row_index * TILE_SIZE,
+                        TILE_SIZE,
+                        TILE_SIZE
+                    )
+
                     screen.blit(tile, tile_rect.move(offset))
 
-
-    # Returns the tile from the tileset
+    # ----- GET TILE ----- #
     def get_tile(self, tileset, x, y):
         rect = pygame.Rect(x, y, TILE_SIZE, TILE_SIZE)
         return tileset.subsurface(rect)
 
-    # Loads and scales the background image
-    def load_background(self, path):
-        background_image = self.helper.load_image(path)
-        background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
-        return background_image
-
-    # Loads the map and returns the list of rows in the map data
+    # ----- LOAD MAP ----- #
     def load_map(self, path):
         with open(path, mode='r', newline='') as file:
             reader = csv.reader(file, delimiter=',')
             return list(reader)
 
-    # Tile rects for collision
+    # ----- COLLISION ----- #
     def get_tile_rects(self):
-        platform_map = self.load_map(self.map_path)
-        for row_index, row in enumerate(platform_map):
+
+        tile_rects = []
+        main_map = self.maps["main"]
+
+        for row_index, row in enumerate(main_map):
             for col_index, tile_id in enumerate(row):
+
                 tile_id = int(tile_id.strip())
 
                 if tile_id != -1:
-                    tile_rect = pygame.Rect(col_index * TILE_SIZE, row_index * TILE_SIZE, TILE_SIZE, TILE_SIZE)
-                    self.tile_rects.append(tile_rect)
+                    rect = pygame.Rect(
+                        col_index * TILE_SIZE,
+                        row_index * TILE_SIZE,
+                        TILE_SIZE,
+                        TILE_SIZE
+                    )
+                    tile_rects.append(rect)
 
-        return self.tile_rects
+        return tile_rects
 
+    def get_spike_rects(self):
+        spike_rects = []
+
+        spike_map = self.maps["spikes"]
+
+        for row_index, row in enumerate(spike_map):
+            for col_index, tile_id in enumerate(row):
+
+                tile_id = int(tile_id.strip())
+
+                if tile_id != -1:
+                    rect = pygame.Rect(
+                        col_index * TILE_SIZE,
+                        row_index * TILE_SIZE,
+                        TILE_SIZE,
+                        TILE_SIZE
+                    )
+                    spike_rects.append(rect)
+
+        return spike_rects

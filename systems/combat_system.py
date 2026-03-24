@@ -1,5 +1,6 @@
 class CombatSystem:
-    def __init__(self):
+    def __init__(self, sound):
+        self.sound = sound
         pass
 
     # If the rectangle collides, the target is in the range
