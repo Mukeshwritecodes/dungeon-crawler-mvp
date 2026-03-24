@@ -28,6 +28,7 @@ class BatForm(BaseForm):
         player.speed = self.base_speed * multiplier["speed"]
         player.jump_force = self.base_jump_force * multiplier["jump_force"]
         player.health = self.base_health * multiplier["health"]
+        player.max_health = self.base_max_health * multiplier["health"]
         player.defense = self.base_defense * multiplier["defense"]
         player.attack = self.base_attack * multiplier["attack"]
         player.can_fly = True

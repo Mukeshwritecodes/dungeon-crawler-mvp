@@ -10,6 +10,7 @@ class BaseForm:
         self.base_health = constants.BASE_PLAYER_HEALTH
         self.base_attack = constants.BASE_PLAYER_ATTACK
         self.base_defense = constants.BASE_PLAYER_DEFENSE
+        self.base_max_health = constants.BASE_PLAYER_MAX_HEALTH
 
         helper = Helper()
 
@@ -27,6 +28,7 @@ class BaseForm:
         player.health = self.base_health
         player.defense = self.base_defense
         player.attack = self.base_attack
+        player.max_health = self.base_max_health
         player.can_fly = False
 
         player.animations = {

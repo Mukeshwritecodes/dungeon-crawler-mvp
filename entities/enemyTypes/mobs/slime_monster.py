@@ -13,8 +13,8 @@ class SlimeMonster(Enemy):
         # ----- STATS ----- #
         self.jump_force = -240
         self.speed = 60
-        self.health = 50
-        self.attack = 10
+        self.health = 250
+        self.attack = 40
         self.type = "slime"
         self.xp = 80
         # ------------------ #
@@ -65,7 +65,7 @@ class SlimeMonster(Enemy):
         self.velocity_x = self.player_x_direction() * self.speed
 
         # Jump if player is above
-        if not self.is_jumping and self.player_y_direction() == -1:
+        if not self.is_jumping and self.player_y_direction() == -1 and abs(self.velocity_y) < 1:
             self.velocity_y = self.jump_force
             self.is_jumping = True
 
@@ -77,18 +77,21 @@ class SlimeMonster(Enemy):
 
     # ----- ANIMATION SYSTEM ----- #
     def update_animation(self, dt):
-        # Detect state
-        if self.velocity_y < 0:
+
+        # ----- STATE ----- #
+        if self.is_jumping:
             self.state = "jump"
-        elif self.velocity_x != 0:
+        elif abs(self.velocity_x) > 0:
             self.state = "run"
         else:
             self.state = "idle"
 
-        if self.velocity_x > 0:
-            self.facing = "right"
-        elif self.velocity_x < 0:
-            self.facing = "left"
+        # ----- FACING ----- #
+        if abs(self.velocity_y) < 1:  # grounded check
+            if self.velocity_x > 0:
+                self.facing = "right"
+            elif self.velocity_x < 0:
+                self.facing = "left"
 
         new_state = f"{self.state}_{self.facing}"
 
@@ -97,7 +100,7 @@ class SlimeMonster(Enemy):
             self.current_animation = self.animations[new_state]
             self.frame_index = 0
 
-        # Animate
+        # ----- ANIMATION ----- #
         self.animation_timer += dt
         if self.animation_timer >= self.animation_speed:
             self.animation_timer = 0

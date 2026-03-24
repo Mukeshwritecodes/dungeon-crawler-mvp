@@ -34,6 +34,7 @@ class Player(EntityBase):
         self.speed = 0
         self.jump_force = 0
         self.health = 0
+        self.max_health = 0
         self.defense = 0
         self.attack = 0
         self.fortitude = 0
@@ -117,6 +118,9 @@ class Player(EntityBase):
 
     def draw(self, screen, offset):
 
+        if not self.current_animation:
+            return
+
         # Select the sprite and render it
         sprite = self.current_animation[self.frame_index]
 
@@ -128,7 +132,7 @@ class Player(EntityBase):
         screen.blit(sprite, draw_pos)
 
         #DEBUG - Visible collision rect
-        #pygame.draw.rect(screen, (255, 0, 0), self.rect.move(offset), 2)
+        pygame.draw.rect(screen, (255, 0, 0), self.rect.move(offset), 2)
 
 
     def handle_input(self, actions):

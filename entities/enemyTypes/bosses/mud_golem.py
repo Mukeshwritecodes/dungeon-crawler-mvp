@@ -16,6 +16,7 @@ class MudGolem(Enemy):
         self.health = 5000
         self.attack = 150
         self.type = "mud_golem"
+        self.ATTACK_RANGE = 20
         self.xp = 800
         # ------------------ #
 
@@ -38,7 +39,7 @@ class MudGolem(Enemy):
         self.walking_right = helper.load_sprites("assets/sprites/golem-walking-right.png", 64)
         self.walking_left = helper.load_sprites("assets/sprites/golem-walking-left.png", 64)
         self.idle_right = helper.load_sprites("assets/sprites/golem-idle-right.png", 64)
-        self.idle_left = helper.load_sprites("assets/sprites/golem-idle-right.png", 64)
+        self.idle_left = helper.load_sprites("assets/sprites/golem-idle-left.png", 64)
 
 
         self.animations = {
@@ -58,8 +59,15 @@ class MudGolem(Enemy):
         self.current_animation = self.animations[self.current_animation_state]
         # --------------------------------#
 
+
+
     def move(self, dt):
-        self.velocity_x = self.player_x_direction() * self.speed
+        distance = self.player.rect.centerx - self.rect.centerx
+
+        if abs(distance) < self.ATTACK_RANGE:
+            self.velocity_x = 0
+        else:
+            self.velocity_x = self.speed if distance > 0 else -self.speed
 
 
     def update(self, dt):

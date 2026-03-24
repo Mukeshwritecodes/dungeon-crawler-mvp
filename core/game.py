@@ -1,16 +1,17 @@
 import pygame
 from config import *
-from entities.enemyTypes.bosses.mud_golem import MudGolem
 from systems.combat_system import CombatSystem
 from systems.xp_system import XPSystem
-from utils.constants import *
+from systems.ui_system import UISystem
 from .input_handler import InputHandler
 from entities.player import Player
 from world.tilemap import TileMap
 from world.camera import Camera
+
 from entities.enemyTypes.mobs.slime_monster import SlimeMonster
 from entities.enemyTypes.mobs.bat_monster import BatMonster
 from entities.enemyTypes.bosses.mud_golem import MudGolem
+
 
 class Game:
 
@@ -76,6 +77,8 @@ class Game:
         self.vignette_surface.set_colorkey((0, 0, 0))  # remove black
 
         self.xp_system = XPSystem()
+        self.ui = UISystem()
+        self.game_state = "menu"
 
 
     # Runs the main game loop and call the draw and update methods
@@ -91,65 +94,99 @@ class Game:
 
     def update(self, dt):
 
+
+
         events = pygame.event.get()
         self.running = self.handle_events(events)
 
-        '''If player wants to attack,
-         the combat system is called to compute the damage and handle the death'''
-        if self.player.wants_to_attack:
+        if self.game_state == "menu":
+            for event in events:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        self.game_state = "playing"
+            return
+
+        if self.game_state == "paused":
+            return
+
+        if self.game_state == "playing":
+            '''If player wants to attack,
+             the combat system is called to compute the damage and handle the death'''
+            if self.player.wants_to_attack:
+                for enemy in self.enemies:
+                    self.combat_system.attack(self.player, enemy)
+
+                self.player.wants_to_attack = False
+
+            # Enemy attack works the same as the player attack
             for enemy in self.enemies:
-                self.combat_system.attack(self.player, enemy)
-
-            self.player.wants_to_attack = False
-
-        # Enemy attack works the same as the player attack
-        for enemy in self.enemies:
-            if enemy.wants_to_attack:
-                self.combat_system.attack(enemy, self.player)
-                enemy.wants_to_attack = False
+                if enemy.wants_to_attack:
+                    self.combat_system.attack(enemy, self.player)
+                    enemy.wants_to_attack = False
 
 
-        self.player.update(dt, self.InputHandler.movement_handler(events))
-        for enemy in self.enemies:
-            enemy.update(dt)
-            if not enemy.is_alive:
-                self.xp_system.calculate_xp(self.player, enemy.type, enemy.xp)
+            self.player.update(dt, self.InputHandler.movement_handler(events))
+            for enemy in self.enemies:
+                enemy.update(dt)
+                if not enemy.is_alive:
+                    self.xp_system.calculate_xp(self.player, enemy.type, enemy.xp)
 
-        self.enemies = [e for e in self.enemies if e.is_alive] # Only the alive enemies are stored
+            self.enemies = [e for e in self.enemies if e.is_alive] # Only the alive enemies are stored
 
-        camera_rect = Camera.update_camera(self.player_rect, self.camera, self.camera_speed)
-        camera = pygame.math.Vector2(camera_rect.x, camera_rect.y)
-        self.offset = -camera
+            self.player_rect = self.player.get_player_rect()
 
+            camera_rect = Camera.update_camera(self.player_rect, self.camera, self.camera_speed)
+            camera = pygame.math.Vector2(camera_rect.x, camera_rect.y)
+            self.offset = -camera
 
     def handle_events(self, events):
         for event in events:
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    if self.game_state == "playing":
+                        self.game_state = "paused"
+                    else:
+                        self.game_state = "playing"
+
             if event.type == pygame.QUIT:
                 return False
+
         return True
 
     def draw(self):
-        # 1. Draw everything on world surface
-        self.world_surface.fill((0, 0, 0))
 
-        self.TileMap.draw(self.world_surface, self.offset)
-        self.player.draw(self.world_surface, self.offset)
+        if self.game_state == "playing":
+            # 1. Draw everything on world surface
+            self.world_surface.fill((0, 0, 0))
 
-        for enemy in self.enemies:
-            enemy.draw(self.world_surface, self.offset)
+            self.TileMap.draw(self.world_surface, self.offset)
+            self.player.draw(self.world_surface, self.offset)
 
-        # 2. Scale according to the zoom
-        scaled_surface = pygame.transform.scale(
-            self.world_surface,
-            (int(self.world_surface.get_width() * self.zoom),
-             int(self.world_surface.get_height() * self.zoom))
-        )
+            for enemy in self.enemies:
+                enemy.draw(self.world_surface, self.offset)
 
-        screen_rect = self.screen.get_rect()
-        scaled_rect = scaled_surface.get_rect(center=screen_rect.center)
+            # 2. Scale according to the zoom
+            scaled_surface = pygame.transform.scale(
+                self.world_surface,
+                (int(self.world_surface.get_width() * self.zoom),
+                 int(self.world_surface.get_height() * self.zoom))
+            )
 
-        self.screen.blit(scaled_surface, scaled_rect)
-        self.screen.blit(self.vignette_surface, (0, 0))
+            screen_rect = self.screen.get_rect()
+            scaled_rect = scaled_surface.get_rect(center=screen_rect.center)
+
+            self.screen.blit(scaled_surface, scaled_rect)
+            self.screen.blit(self.vignette_surface, (0, 0))
+
+            self.ui.draw_hud(self.screen, self.player)
+
+        if self.game_state == "paused":
+            self.ui.draw_pause(self.screen)
+        if self.game_state == "menu":
+            self.ui.draw_menu(self.screen)
+            pygame.display.flip()
+            return
 
         pygame.display.flip()
 

@@ -12,8 +12,8 @@ class BatMonster(Enemy):
 
         # ----- STATS ----- #
         self.speed = 100
-        self.health = 30
-        self.attack = 8
+        self.health = 200
+        self.attack = 30
         self.type = "bat"
         self.xp = 90
 
