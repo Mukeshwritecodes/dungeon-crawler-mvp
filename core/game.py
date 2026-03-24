@@ -5,9 +5,10 @@ from systems.xp_system import XPSystem
 from utils.constants import *
 from .input_handler import InputHandler
 from entities.player import Player
-from entities.enemy import Enemy
 from world.tilemap import TileMap
 from world.camera import Camera
+from entities.enemyTypes.mobs.slime_monster import SlimeMonster
+from entities.enemyTypes.mobs.bat_monster import BatMonster
 
 class Game:
 
@@ -41,15 +42,27 @@ class Game:
         )
         self.offset = -self.camera
 
-        self.enemy1_position.x = 800
-        self.enemy1_position.y = 3303
-        self.enemy1 = Enemy(self.enemy1_position, self.tile_rects, self.player)
+        self.enemies = []
 
-        self.enemy2_position.x = 600
-        self.enemy2_position.y = 3303
-        self.enemy2 = Enemy(self.enemy2_position, self.tile_rects, self.player)
+        enemy_types = {
+            "slime": SlimeMonster,
+             "bat": BatMonster
+        }
 
-        self.enemies = [self.enemy1, self.enemy2]
+        enemy_data = [
+            ("slime", 800, 3300),
+            ("slime", 600, 3300),
+            ("slime", 300, 3300),
+            ("bat", 800, 3000),
+            ("bat", 600, 3000),
+            ("bat", 800, 3200),
+            ("bat", 600, 3200),
+        ]
+
+        for etype, x, y in enemy_data:
+            cls = enemy_types[etype]
+            self.enemies.append(cls(pygame.Vector2(x, y), self.tile_rects, self.player))
+
         self.combat_system = CombatSystem()
 
         self.running = True
@@ -89,7 +102,7 @@ class Game:
         for enemy in self.enemies:
             if enemy.wants_to_attack:
                 self.combat_system.attack(enemy, self.player)
-                self.player.wants_to_attack = False
+                enemy.wants_to_attack = False
 
 
         self.player.update(dt, self.InputHandler.movement_handler(events))

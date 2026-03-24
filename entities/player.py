@@ -50,10 +50,11 @@ class Player(EntityBase):
         # Player level, handled by xp_system
         self.level = 1
         self.xp = 0
-        self.level_xp = 1000
+        self.level_xp = 50
         self.xp_system = XPSystem()
         self.kill_log = {
-            "slime": [0, 0]
+            "slime": [0, 0],
+            "bat": [0, 0]
         }
         #-------- Transformation ---------#
 
