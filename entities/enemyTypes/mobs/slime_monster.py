@@ -1,3 +1,5 @@
+import pygame
+
 from entities.enemy import Enemy
 from utils.helpers import Helper
 
@@ -16,6 +18,21 @@ class SlimeMonster(Enemy):
         self.type = "slime"
         self.xp = 80
         # ------------------ #
+
+        bottom = self.rect.bottom  # preserve ground alignment
+
+        self.rect.width = 16
+        self.rect.height = 16
+
+        self.rect.bottom = bottom  # restore alignment
+
+        self.draw_offset = pygame.Vector2(0, 0)
+
+        sprite_width = 16
+        sprite_height = 16
+
+        self.draw_offset.x = -(sprite_width - self.rect.width) // 2
+        self.draw_offset.y = -(sprite_height - self.rect.height)
 
         # -------Animation--------#
         self.running_right = helper.load_sprites("assets/sprites/slime-walking-right.png", 16)
@@ -44,7 +61,6 @@ class SlimeMonster(Enemy):
         self.current_animation = self.animations[self.current_animation_state]
         # --------------------------------#
 
-    # ONLY behavior here
     def move(self, dt):
         self.velocity_x = self.player_x_direction() * self.speed
 
@@ -54,7 +70,7 @@ class SlimeMonster(Enemy):
             self.is_jumping = True
 
     def update(self, dt):
-        super().update(dt)  # 🔥 IMPORTANT
+        super().update(dt)
 
         self.update_animation(dt)
         self.handle_attack()
@@ -88,8 +104,14 @@ class SlimeMonster(Enemy):
             self.frame_index = (self.frame_index + 1) % len(self.current_animation)
 
     def draw(self, screen, offset):
+
         sprite = self.current_animation[self.frame_index]
-        screen.blit(sprite, self.rect.move(offset))
+        draw_pos = (
+            self.rect.x + offset[0] + self.draw_offset.x,
+            self.rect.y + offset[1] + self.draw_offset.y
+        )
+
+        screen.blit(sprite, draw_pos)
 
     # ----- COMBAT ----- #
     def handle_attack(self):

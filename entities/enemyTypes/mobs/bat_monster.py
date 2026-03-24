@@ -17,8 +17,23 @@ class BatMonster(Enemy):
         self.type = "bat"
         self.xp = 90
 
+        bottom = self.rect.bottom  # preserve ground alignment
+
+        self.rect.width = 32
+        self.rect.height = 32
+
+        self.rect.bottom = bottom  # restore alignment
+
+        self.draw_offset = pygame.Vector2(0, 0)
+
+        sprite_width = 22
+        sprite_height = 22
+
+        self.draw_offset.x = -(sprite_width - self.rect.width) // 2
+        self.draw_offset.y = -(sprite_height - self.rect.height)
+
         # ----- FLAGS ----- #
-        self.affected_by_gravity = False  # 🔥 IMPORTANT
+        self.affected_by_gravity = False
 
         # ----- ANIMATION ----- #
         self.flying_right = helper.load_sprites("assets/sprites/bat-flying-right.png", 32)
@@ -81,7 +96,12 @@ class BatMonster(Enemy):
     # ----- DRAW ----- #
     def draw(self, screen, offset):
         sprite = self.current_animation[self.frame_index]
-        screen.blit(sprite, self.rect.move(offset))
+        draw_pos = (
+            self.rect.x + offset[0] + self.draw_offset.x,
+            self.rect.y + offset[1] + self.draw_offset.y
+        )
+
+        screen.blit(sprite, draw_pos)
 
     # ----- COMBAT ----- #
     def handle_attack(self):

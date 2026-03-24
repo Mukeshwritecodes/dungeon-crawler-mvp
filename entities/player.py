@@ -54,7 +54,8 @@ class Player(EntityBase):
         self.xp_system = XPSystem()
         self.kill_log = {
             "slime": [0, 0],
-            "bat": [0, 0]
+            "bat": [0, 0],
+            "mud_golem": [0, 0],
         }
         #-------- Transformation ---------#
 
@@ -118,9 +119,6 @@ class Player(EntityBase):
 
         # Select the sprite and render it
         sprite = self.current_animation[self.frame_index]
-
-        draw_x = self.rect.x - (sprite.get_width() - self.rect.width) // 2
-        draw_y = self.rect.y - (sprite.get_height() - self.rect.height)
 
         draw_pos = (
             self.rect.x + offset[0] + self.draw_offset.x,

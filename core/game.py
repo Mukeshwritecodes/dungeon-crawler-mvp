@@ -1,5 +1,6 @@
 import pygame
 from config import *
+from entities.enemyTypes.bosses.mud_golem import MudGolem
 from systems.combat_system import CombatSystem
 from systems.xp_system import XPSystem
 from utils.constants import *
@@ -9,6 +10,7 @@ from world.tilemap import TileMap
 from world.camera import Camera
 from entities.enemyTypes.mobs.slime_monster import SlimeMonster
 from entities.enemyTypes.mobs.bat_monster import BatMonster
+from entities.enemyTypes.bosses.mud_golem import MudGolem
 
 class Game:
 
@@ -46,7 +48,8 @@ class Game:
 
         enemy_types = {
             "slime": SlimeMonster,
-             "bat": BatMonster
+             "bat": BatMonster,
+            "mud_golem" : MudGolem,
         }
 
         enemy_data = [
@@ -57,6 +60,7 @@ class Game:
             ("bat", 600, 3000),
             ("bat", 800, 3200),
             ("bat", 600, 3200),
+            ("mud_golem", 800, 3000),
         ]
 
         for etype, x, y in enemy_data:
