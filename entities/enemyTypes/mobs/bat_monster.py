@@ -16,8 +16,6 @@ class BatMonster(Enemy):
         self.attack = 30
         self.type = "bat"
         self.xp = 90
-        self.attack_speed = 1
-
         bottom = self.rect.bottom  # preserve ground alignment
 
         self.rect.width = 32
@@ -56,6 +54,7 @@ class BatMonster(Enemy):
         self.following = False
         self.disagro_counter = 0
         self.disagro_timer = 3
+        self.attack_cooldown = 0
 
     # ----- MOVEMENT (FLYING AI) ----- #
     def move(self, dt):
@@ -72,14 +71,18 @@ class BatMonster(Enemy):
 
         if self.following:
 
-            dx = self.player.rect.x - self.position.x
-            dy = self.player.rect.y - self.position.y
+            dx = self.player.rect.centerx - self.position.x
+            dy = self.player.rect.centery - self.position.y
 
             distance = math.hypot(dx, dy)
 
-            if distance != 0:
-                dx /= distance
-                dy /= distance
+            if distance < 10:
+                self.velocity_x = 0
+                self.velocity_y = 0
+                return
+
+            dx /= distance
+            dy /= distance
 
             self.velocity_x = dx * self.speed
             self.velocity_y = dy * self.speed
@@ -93,7 +96,7 @@ class BatMonster(Enemy):
         super().update(dt)
 
         self.update_animation(dt)
-        self.handle_attack()
+        self.handle_attack(dt)
 
     # ----- ANIMATION ----- #
     def update_animation(self, dt):
@@ -125,6 +128,10 @@ class BatMonster(Enemy):
         screen.blit(sprite, draw_pos)
 
     # ----- COMBAT ----- #
-    def handle_attack(self):
+    def handle_attack(self, dt):
+        self.attack_cooldown -= dt
+
         if self.rect.colliderect(self.player.rect):
-            self.wants_to_attack = True
+            if self.attack_cooldown <= 0:
+                self.wants_to_attack = True
+                self.attack_cooldown = 1  # 1 second

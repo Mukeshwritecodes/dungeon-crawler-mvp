@@ -21,7 +21,6 @@ class Enemy(EntityBase):
         self.health = 1
         self.defense = 0
         self.attack = 0
-        self.attack_speed = 0
 
         self.type = "base"
         self.level = 1

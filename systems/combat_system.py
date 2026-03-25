@@ -25,6 +25,7 @@ class CombatSystem:
     def calculate_damage(self, attacker, target):
             if target.is_alive:
                 target.health -= attacker.attack
+                print("Player's Health: ", target.health)
                 self.handle_death(target)
 
 
