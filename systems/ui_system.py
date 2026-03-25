@@ -50,8 +50,8 @@ class UISystem:
     def draw_menu(self, screen):
         screen.fill((0, 0, 0))
 
-        title = self.font_large.render("Dungeon Game", True, (255, 255, 255))
+        title = self.font_large.render("Shapebound", True, (255, 255, 255))
         start = self.font_small.render("Press ENTER to Start", True, (255, 255, 255))
 
-        screen.blit(title, ((WIDTH // 2) - 120, (HEIGHT // 2) - 100))
+        screen.blit(title, ((WIDTH // 2) - 100, (HEIGHT // 2) - 100))
         screen.blit(start, ((WIDTH // 2) - 100, HEIGHT // 2))

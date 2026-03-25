@@ -11,11 +11,12 @@ class BatMonster(Enemy):
         helper = Helper()
 
         # ----- STATS ----- #
-        self.speed = 100
+        self.speed = 120
         self.health = 200
         self.attack = 30
         self.type = "bat"
         self.xp = 90
+        self.attack_speed = 1
 
         bottom = self.rect.bottom  # preserve ground alignment
 
@@ -52,11 +53,25 @@ class BatMonster(Enemy):
         self.facing = "left"
         self.current_animation_state = "fly_left"
         self.current_animation = self.animations[self.current_animation_state]
+        self.following = False
+        self.disagro_counter = 0
+        self.disagro_timer = 3
 
     # ----- MOVEMENT (FLYING AI) ----- #
     def move(self, dt):
 
         if self.distance_to_player() < 100:
+            self.following = True
+
+        if self.following and self.distance_to_player() > 300:
+            self.disagro_counter += dt
+            if self.disagro_counter > self.disagro_timer:
+                self.disagro_counter = 0
+                self.following = False
+
+
+        if self.following:
+
             dx = self.player.rect.x - self.position.x
             dy = self.player.rect.y - self.position.y
 
@@ -68,13 +83,14 @@ class BatMonster(Enemy):
 
             self.velocity_x = dx * self.speed
             self.velocity_y = dy * self.speed
+
         else:
             self.velocity_x = 0
             self.velocity_y = 0
 
     # ----- UPDATE ----- #
     def update(self, dt):
-        super().update(dt)  # uses base physics (but no gravity)
+        super().update(dt)
 
         self.update_animation(dt)
         self.handle_attack()

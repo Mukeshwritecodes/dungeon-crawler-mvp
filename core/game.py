@@ -228,8 +228,9 @@ class Game:
             self.screen.blit(self.vignette_surface, (0, 0))
             self.ui.draw_hud(self.screen, self.player)
 
-            if not self.player.is_alive:
-                self.screen.blit(self.overlay, (0, 0))
+            #if not self.player.is_alive:
+             #   if self.respawn_timer >= self.respawn_delay:
+              #      self.screen.blit(self.overlay, (0, 0))
 
 
         if self.game_state == "paused":
