@@ -6,6 +6,7 @@ pygame.init()
 game = Game()
 game.run()
 
+
 # Uninitialize modules
 pygame.quit()
 sys.exit()

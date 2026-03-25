@@ -55,17 +55,22 @@ class BatMonster(Enemy):
 
     # ----- MOVEMENT (FLYING AI) ----- #
     def move(self, dt):
-        dx = self.player.rect.x - self.position.x
-        dy = self.player.rect.y - self.position.y
 
-        distance = math.hypot(dx, dy)
+        if self.distance_to_player() < 100:
+            dx = self.player.rect.x - self.position.x
+            dy = self.player.rect.y - self.position.y
 
-        if distance != 0:
-            dx /= distance
-            dy /= distance
+            distance = math.hypot(dx, dy)
 
-        self.velocity_x = dx * self.speed
-        self.velocity_y = dy * self.speed
+            if distance != 0:
+                dx /= distance
+                dy /= distance
+
+            self.velocity_x = dx * self.speed
+            self.velocity_y = dy * self.speed
+        else:
+            self.velocity_x = 0
+            self.velocity_y = 0
 
     # ----- UPDATE ----- #
     def update(self, dt):

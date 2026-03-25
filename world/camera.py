@@ -22,8 +22,8 @@ class Camera:
         camera_pos.y += (target_y - camera_pos.y) / smoothness
 
         # 🔥 Clamp correctly
-        camera_pos.x = max(0, min(camera_pos.x, map_width - WIDTH))
-        camera_pos.y = max(0, min(camera_pos.y, map_height - HEIGHT))
+        #camera_pos.x = max(0, min(camera_pos.x, map_width - WIDTH))
+        #camera_pos.y = max(0, min(camera_pos.y, map_height - HEIGHT))
 
         return pygame.Rect(int(camera_pos.x), int(camera_pos.y), WIDTH, HEIGHT)
 

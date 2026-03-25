@@ -42,6 +42,10 @@ class Enemy(EntityBase):
 
     # ----- MAIN UPDATE LOOP ----- #
     def update(self, dt):
+
+        if not self.player.is_alive:
+            return
+
         self.move(dt)  # child defines behavior
 
         # Horizontal movement

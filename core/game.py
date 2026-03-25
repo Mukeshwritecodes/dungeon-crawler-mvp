@@ -44,6 +44,8 @@ class Game:
 
         self.camera = pygame.math.Vector2(0, 0)
         self.offset = -self.camera
+        self.respawn_timer = 0
+        self.respawn_delay = 1.5
 
         self.enemies = []
 
@@ -56,12 +58,12 @@ class Game:
         enemy_data = [
             ("slime", 2048, 1120),
             ("slime", 2000, 1120),
-            ("slime", 1950, 3300),
+            ("slime", 1950, 1120),
             ("bat", 1536, 320),
             ("bat", 1510, 332),
             ("bat", 1490, 310),
             ("bat", 1560, 300),
-            ("mud_golem", 3424, 3000),
+            ("mud_golem", 3328, 1152),
         ]
 
         for etype, x, y in enemy_data:
@@ -132,6 +134,37 @@ class Game:
 
             self.player.update(dt, self.InputHandler.movement_handler(events))
 
+            if not self.player.is_alive:
+                self.respawn_timer += dt
+
+                if self.respawn_timer >= self.respawn_delay:
+                    self.respawn_timer = 0
+                    self.enemies = []
+
+                    enemy_types = {
+                        "slime": SlimeMonster,
+                        "bat": BatMonster,
+                        "mud_golem": MudGolem,
+                    }
+
+                    enemy_data = [
+                        ("slime", 2048, 1120),
+                        ("slime", 2000, 1120),
+                        ("slime", 1950, 1120),
+                        ("bat", 1536, 320),
+                        ("bat", 1510, 332),
+                        ("bat", 1490, 310),
+                        ("bat", 1560, 300),
+                        ("mud_golem", 3328, 1152),
+                    ]
+
+                    for etype, x, y in enemy_data:
+                        cls = enemy_types[etype]
+                        self.enemies.append(cls(pygame.Vector2(x, y), self.tile_rects, self.player))
+
+
+
+
 
             for spike in self.spike_rects:
                 if self.player.rect.colliderect(spike):
@@ -192,12 +225,11 @@ class Game:
 
             self.screen.blit(scaled_surface, (-offset_x, -offset_y))
 
-            #self.screen.blit(scaled_surface, (0, 0))
             self.screen.blit(self.vignette_surface, (0, 0))
             self.ui.draw_hud(self.screen, self.player)
 
-            #if not self.player.is_alive:
-             #   self.screen.blit(self.overlay, (0, 0))
+            if not self.player.is_alive:
+                self.screen.blit(self.overlay, (0, 0))
 
 
         if self.game_state == "paused":

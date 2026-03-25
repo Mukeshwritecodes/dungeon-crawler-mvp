@@ -118,7 +118,7 @@ class TileMap:
                 if tile_id != -1:
                     rect = pygame.Rect(
                         col_index * TILE_SIZE,
-                        row_index * TILE_SIZE,
+                        (row_index * TILE_SIZE) + 16,
                         TILE_SIZE,
                         TILE_SIZE
                     )
