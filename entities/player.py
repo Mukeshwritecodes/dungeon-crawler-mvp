@@ -39,6 +39,7 @@ class Player(EntityBase):
         self.defense = 0
         self.attack = 0
         self.fortitude = 0
+        self.damage_taken = 0
         self.animations = {}
         self.state = "none"
         self.facing = "none"

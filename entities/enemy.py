@@ -25,6 +25,7 @@ class Enemy(EntityBase):
         self.type = "base"
         self.level = 1
         self.xp = 0
+        self.damage_taken = 0
 
         self.wants_to_attack = False
 

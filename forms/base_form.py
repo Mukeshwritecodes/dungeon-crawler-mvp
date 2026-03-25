@@ -25,7 +25,7 @@ class BaseForm:
         player.speed = self.base_speed
         player.color = self.color
         player.jump_force = self.base_jump_force
-        player.health = self.base_health
+        player.health = self.base_health - player.damage_taken
         player.defense = self.base_defense
         player.attack = self.base_attack
         player.max_health = self.base_max_health
