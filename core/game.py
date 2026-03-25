@@ -1,9 +1,12 @@
 import pygame
+from pygame.constants import SRCALPHA
+
 from config import *
 from systems.combat_system import CombatSystem
 from systems.xp_system import XPSystem
 from systems.ui_system import UISystem
 from systems.sound_manager import SoundManager
+from utils.helpers import Helper
 from .input_handler import InputHandler
 from entities.player import Player
 from world.tilemap import TileMap
@@ -76,9 +79,8 @@ class Game:
         self.vignette_surface = pygame.image.load("assets/tilesets/backgrounds/Vignette.png").convert_alpha()
         self.vignette_surface = pygame.transform.scale(self.vignette_surface,(WIDTH, HEIGHT))
         self.vignette_surface.set_colorkey((0, 0, 0))  # remove black
-        self.overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-        self.overlay.set_alpha(100)
-        self.overlay.fill((255, 0, 0))
+        self.overlay = pygame.Surface((WIDTH, HEIGHT), SRCALPHA)
+        self.overlay.fill((255, 0, 0, 100))
 
         self.combat_system = CombatSystem(self.sound)
         self.xp_system = XPSystem()
@@ -229,8 +231,9 @@ class Game:
             self.ui.draw_hud(self.screen, self.player)
 
             #if not self.player.is_alive:
-             #   if self.respawn_timer >= self.respawn_delay:
-              #      self.screen.blit(self.overlay, (0, 0))
+             #   self.screen.blit(self.overlay, (0, 0))
+
+
 
 
         if self.game_state == "paused":

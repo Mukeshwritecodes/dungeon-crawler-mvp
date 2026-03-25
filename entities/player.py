@@ -232,6 +232,8 @@ class Player(EntityBase):
 
         self.velocity_x = 0
         self.velocity_y = 0
-
-        self.health = self.form.base_max_health
+        self.form = BaseForm()
+        self.form.apply(self)
+        self.frame_index = 0
+        self.health = self.max_health
         self.is_alive = True

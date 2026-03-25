@@ -67,8 +67,9 @@ class Enemy(EntityBase):
         pass
 
     def draw(self, screen, offset):
+        pass
         # Simple debug rectangle (you can override in child)
-        pygame.draw.rect(screen, (255, 0, 0), self.rect.move(offset), 2)
+        #pygame.draw.rect(screen, (255, 0, 0), self.rect.move(offset), 2)
 
     # ----- PHYSICS ----- #
     def apply_gravity(self, dt):
