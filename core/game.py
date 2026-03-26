@@ -52,13 +52,13 @@ class Game:
 
         self.enemies = []
 
-        enemy_types = {
+        self.enemy_types = {
             "slime": SlimeMonster,
              "bat": BatMonster,
             "mud_golem" : MudGolem,
         }
 
-        enemy_data = [
+        self.enemy_data = [
             ("slime", 2048, 1120),
             ("slime", 2000, 1120),
             ("slime", 1950, 1120),
@@ -69,10 +69,7 @@ class Game:
             ("mud_golem", 3328, 1152),
         ]
 
-        for etype, x, y in enemy_data:
-            cls = enemy_types[etype]
-            self.enemies.append(cls(pygame.Vector2(x, y), self.tile_rects, self.player))
-
+        self.spawn_enemies()
 
         self.running = True
 
@@ -134,7 +131,6 @@ class Game:
                     enemy.wants_to_attack = False
 
 
-            self.player.update(dt, self.InputHandler.movement_handler(events))
 
             if not self.player.is_alive:
                 self.respawn_timer += dt
@@ -142,36 +138,13 @@ class Game:
                 if self.respawn_timer >= self.respawn_delay:
                     self.respawn_timer = 0
                     self.enemies = []
+                    self.spawn_enemies()
 
-                    enemy_types = {
-                        "slime": SlimeMonster,
-                        "bat": BatMonster,
-                        "mud_golem": MudGolem,
-                    }
-
-                    enemy_data = [
-                        ("slime", 2048, 1120),
-                        ("slime", 2000, 1120),
-                        ("slime", 1950, 1120),
-                        ("bat", 1536, 320),
-                        ("bat", 1510, 332),
-                        ("bat", 1490, 310),
-                        ("bat", 1560, 300),
-                        ("mud_golem", 3328, 1152),
-                    ]
-
-                    for etype, x, y in enemy_data:
-                        cls = enemy_types[etype]
-                        self.enemies.append(cls(pygame.Vector2(x, y), self.tile_rects, self.player))
-
-
-
-
+            self.player.update(dt, self.InputHandler.movement_handler(events))
 
             for spike in self.spike_rects:
                 if self.player.rect.colliderect(spike):
                     self.player.is_alive = False
-
 
             for enemy in self.enemies:
                 enemy.update(dt)
@@ -185,6 +158,7 @@ class Game:
             camera_rect = Camera.update_camera(self.player_rect, self.camera, self.camera_speed)
             camera = pygame.Vector2(camera_rect.x, camera_rect.y)
             self.offset = -camera
+
 
     def handle_events(self, events):
         for event in events:
@@ -200,6 +174,7 @@ class Game:
                 return False
 
         return True
+
 
     def draw(self):
 
@@ -234,8 +209,6 @@ class Game:
              #   self.screen.blit(self.overlay, (0, 0))
 
 
-
-
         if self.game_state == "paused":
             self.ui.draw_pause(self.screen)
         if self.game_state == "menu":
@@ -246,4 +219,10 @@ class Game:
         pygame.display.flip()
 
 
+
+    def spawn_enemies(self):
+
+        for etype, x, y in self.enemy_data:
+            cls = self.enemy_types[etype]
+            self.enemies.append(cls(pygame.Vector2(x, y), self.tile_rects, self.player))
 

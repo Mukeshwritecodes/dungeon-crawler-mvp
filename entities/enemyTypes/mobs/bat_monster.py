@@ -13,7 +13,7 @@ class BatMonster(Enemy):
         # ----- STATS ----- #
         self.speed = 120
         self.health = 200
-        self.attack = 30
+        self.attack = 300
         self.type = "bat"
         self.xp = 90
         bottom = self.rect.bottom  # preserve ground alignment

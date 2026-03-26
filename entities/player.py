@@ -235,5 +235,6 @@ class Player(EntityBase):
         self.form = BaseForm()
         self.form.apply(self)
         self.frame_index = 0
+        self.damage_taken = 0
         self.health = self.max_health
         self.is_alive = True
